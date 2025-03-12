@@ -19,16 +19,15 @@ namespace GetScheduledTasksGQI
 	public class GetScheduledTasksGQI : IGQIDataSource, IGQIInputArguments, IGQIOnInit
 	{
 		private readonly Arguments arguments = new Arguments();
-		List<GQIRow> rows = new List<GQIRow>();
+		private List<GQIRow> rows = new List<GQIRow>();
 
 		private GQIDMS dms;
-		public List<SchedulerTask> scheduledTasks = new List<SchedulerTask>();
+		public List<SchedulerTask> ScheduledTasks = new List<SchedulerTask>();
 
 		public OnInitOutputArgs OnInit(OnInitInputArgs args)
 		{
 			dms = args.DMS;
 			return default;
-
 		}
 
 		public GQIArgument[] GetInputArguments()
@@ -39,6 +38,7 @@ namespace GetScheduledTasksGQI
 		public OnArgumentsProcessedOutputArgs OnArgumentsProcessed(OnArgumentsProcessedInputArgs args)
 		{
 			arguments.ProcessArguments(args);
+
 			string userInput = arguments.NameFilter ?? "";
 			string regexPattern;
 			string escapedInput = Regex.Escape(userInput);
@@ -46,7 +46,7 @@ namespace GetScheduledTasksGQI
 			regexPattern = escapedInput.Replace("\\*", ".*"); // supporting * as wildcard
 
 			var tasks = GetTasks(task => Regex.IsMatch(task.TaskName, regexPattern));
-			scheduledTasks.AddRange(tasks);
+			ScheduledTasks.AddRange(tasks);
 
 			return new OnArgumentsProcessedOutputArgs();
 		}
@@ -67,11 +67,12 @@ namespace GetScheduledTasksGQI
 
 		public GQIPage GetNextPage(GetNextPageInputArgs args)
 		{
-			ProcessScheduledTasks();
-			return new GQIPage(rows.ToArray())
+			if (ScheduledTasks.IsNotNullOrEmpty())
 			{
-				HasNextPage = false,
-			};
+				ProcessScheduledTasks();
+			}
+
+			return new GQIPage(rows.ToArray()) { HasNextPage = false };
 		}
 
 		private IEnumerable<SchedulerTask> GetTasks(Func<Skyline.DataMiner.Net.Messages.SchedulerTask, bool> selector)
@@ -92,7 +93,7 @@ namespace GetScheduledTasksGQI
 				{
 					if (task is Skyline.DataMiner.Net.Messages.SchedulerTask scheduleTask && selector(scheduleTask))
 					{
-						result.Add(scheduleTask); 
+						result.Add(scheduleTask);
 					}
 				}
 			}
@@ -102,15 +103,10 @@ namespace GetScheduledTasksGQI
 
 		private void ProcessScheduledTasks()
 		{
-			if (!scheduledTasks.IsNotNullOrEmpty())
-			{
-				return;
-			}
-
 			DateTime rangeStart = arguments.Start;
 			DateTime rangeEnd = arguments.End;
 
-			foreach (var task in scheduledTasks)
+			foreach (var task in ScheduledTasks)
 			{
 				DateTime taskStart = DateTime.SpecifyKind(task.StartTime, DateTimeKind.Utc);
 
@@ -139,6 +135,9 @@ namespace GetScheduledTasksGQI
 						AddMonthlyRepeatingTasks(task, taskStart, taskEnd, rangeStart, rangeEnd);
 						break;
 					case SchedulerRepeatType.Undefined:
+						break;
+					default:
+						// do nothing
 						break;
 				}
 			}
@@ -179,7 +178,7 @@ namespace GetScheduledTasksGQI
 
 		private void AddRow(SchedulerTask task, DateTime occurrenceTime)
 		{
-			rows.Add(new GQIRow(new GQICell[]
+			rows.Add(new GQIRow(new[]
 			{
 				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime ,DateTimeKind.Utc) },
 				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime.AddSeconds(arguments.Duration) ,DateTimeKind.Utc) },
