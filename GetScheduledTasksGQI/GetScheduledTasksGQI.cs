@@ -2,7 +2,9 @@ namespace GetScheduledTasksGQI
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Linq;
 	using System.Text.RegularExpressions;
+	using System.Threading.Tasks;
 
 	using Newtonsoft.Json;
 
@@ -18,13 +20,13 @@ namespace GetScheduledTasksGQI
 	/// See: https://aka.dataminer.services/gqi-external-data-source for a complete example.
 	/// </summary>
 	[GQIMetaData(Name = "GetScheduledTasksGQI")]
-	public sealed class GetScheduledTasksGQI : IGQIDataSource, IGQIInputArguments
+	public class GetScheduledTasksGQI : IGQIDataSource, IGQIInputArguments
 	{
 		private readonly Arguments arguments = new Arguments();
 		List<GQIColumn> columns = new List<GQIColumn>();
 		List<GQIRow> rows = new List<GQIRow>();
 
-		private List<SchedulerTask> scheduledTasks = new List<SchedulerTask>();
+		public List<SchedulerTask> scheduledTasks = new List<SchedulerTask>();
 
 		public GQIArgument[] GetInputArguments()
 		{
@@ -35,10 +37,11 @@ namespace GetScheduledTasksGQI
 		{
 			arguments.ProcessArguments(args);
 			var tasks = GetTasks(task => Regex.IsMatch(task.TaskName, arguments.NameFilter) && task.StartTime > arguments.Start && task.EndTime < arguments.End);
-			scheduledTasks.AddRange(tasks);
+			scheduledTasks = scheduledTasks.Concat(tasks ?? Enumerable.Empty<SchedulerTask>()).ToList();
 			InitializeRows();
 			return new OnArgumentsProcessedOutputArgs();
 		}
+
 		private IEnumerable<SchedulerTask> GetTasks(Func<Skyline.DataMiner.Net.Messages.SchedulerTask, bool> selector)
 		{
 			GetInfoMessage getInfoMessage = new GetInfoMessage
