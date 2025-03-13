@@ -37,13 +37,7 @@ namespace GetScheduledTasksGQI
 		public OnArgumentsProcessedOutputArgs OnArgumentsProcessed(OnArgumentsProcessedInputArgs args)
 		{
 			arguments.ProcessArguments(args);
-
-			string userInput = arguments.NameFilter ?? string.Empty;
-			string regexPattern;
-			string escapedInput = Regex.Escape(userInput);
-
-			regexPattern = escapedInput.Replace("\\*", ".*"); // supporting * as wildcard
-			var tasks = GetTasks(task => Regex.IsMatch(task.TaskName, regexPattern));
+			var tasks = GetTasks(task => Regex.IsMatch(task.TaskName, arguments.NameFilter, RegexOptions.IgnoreCase) && task.Enabled && (task.EndTime == DateTime.MinValue || (task.EndTime >= arguments.Start && task.EndTime <= arguments.End)));
 
 			scheduledTasks.AddRange(tasks);
 
@@ -102,77 +96,87 @@ namespace GetScheduledTasksGQI
 
 		private void ProcessScheduledTasks()
 		{
-			DateTime rangeStart = arguments.Start;
-			DateTime rangeEnd = arguments.End;
+			DateTime rangeStart = DateTime.SpecifyKind(arguments.Start, DateTimeKind.Utc);
+			DateTime rangeEnd = DateTime.SpecifyKind(arguments.End, DateTimeKind.Utc);
 
 			foreach (var task in scheduledTasks)
 			{
 				DateTime taskStart = DateTime.SpecifyKind(task.StartTime, DateTimeKind.Utc);
-
-				// Handle missing end time (ongoing tasks)
 				DateTime taskEnd = task.EndTime == DateTime.MinValue ? DateTime.MaxValue : DateTime.SpecifyKind(task.EndTime, DateTimeKind.Utc);
 
-				switch (task.RepeatType)
+				List<DateTime> occurrences = new List<DateTime>();
+
+				if (!string.IsNullOrEmpty(task.RepeatInterval))
 				{
-					case SchedulerRepeatType.Once:
-						if (taskStart >= rangeStart && taskStart <= rangeEnd)
-						{
-							AddRow(task, taskStart);
-						}
+					switch (task.RepeatType)
+					{
+						case SchedulerRepeatType.Monthly:
+							occurrences = TimeIntervalParser.ParseMonthlyTask(task.RepeatInterval, task.RepeatIntervalInMinutes, rangeStart, rangeEnd, taskStart);
+							break;
 
-						break;
+						case SchedulerRepeatType.Weekly:
+							occurrences = TimeIntervalParser.ParseWeeklyTask(task.RepeatInterval, task.RepeatIntervalInMinutes, rangeStart, rangeEnd, taskStart);
+							break;
 
-					case SchedulerRepeatType.Daily:
-						AddRepeatingTasks(task, taskStart, taskEnd, rangeStart, rangeEnd, TimeSpan.FromDays(1));
-						break;
+						case SchedulerRepeatType.Daily:
+							occurrences = TimeIntervalParser.ParseDailyTask(task.RepeatInterval, task.RepeatIntervalInMinutes, rangeStart, rangeEnd, taskStart);
+							break;
+						case SchedulerRepeatType.Once:
+							if (taskStart >= rangeStart && taskStart <= rangeEnd)
+							{
+								occurrences.Add(taskStart);
+							}
+							break;
+						default:
+							// do nothing
+							break;
+					}
+				}
 
-					case SchedulerRepeatType.Weekly:
-						AddRepeatingTasks(task, taskStart, taskEnd, rangeStart, rangeEnd, TimeSpan.FromDays(7));
-						break;
+				if (task.Repeat > 0)
+				{
+					occurrences = occurrences.Take(task.Repeat).ToList();
+				}
 
-					case SchedulerRepeatType.Monthly:
-						AddMonthlyRepeatingTasks(task, taskStart, taskEnd, rangeStart, rangeEnd);
-						break;
-					case SchedulerRepeatType.Undefined:
-						break;
-					default:
-						// do nothing
-						break;
+				foreach (var occurrence in occurrences)
+				{
+					AddRow(task, occurrence);
 				}
 			}
 		}
 
-		private void AddRepeatingTasks(SchedulerTask task, DateTime taskStart, DateTime taskEnd, DateTime rangeStart, DateTime rangeEnd, TimeSpan interval)
+		private List<DateTime> GenerateRepeatingOccurrences(DateTime taskStart, DateTime taskEnd, DateTime rangeStart, DateTime rangeEnd, TimeSpan interval)
 		{
-			// Find the first valid occurrence in the given range
+			List<DateTime> occurrences = new List<DateTime>();
+
 			DateTime occurrence = taskStart;
-
-			while (occurrence < rangeStart)
+			while (occurrence <= taskEnd && occurrence <= rangeEnd)
 			{
+				if (occurrence >= rangeStart && occurrence <= rangeEnd)
+				{
+					occurrences.Add(occurrence);
+				}
 				occurrence = occurrence.Add(interval);
 			}
 
-			while (occurrence <= rangeEnd && occurrence <= taskEnd)
-			{
-				AddRow(task, occurrence);
-				occurrence = occurrence.Add(interval);
-			}
+			return occurrences;
 		}
 
-		private void AddMonthlyRepeatingTasks(SchedulerTask task, DateTime taskStart, DateTime taskEnd, DateTime rangeStart, DateTime rangeEnd)
+		private List<DateTime> GenerateMonthlyOccurrences(DateTime taskStart, DateTime taskEnd, DateTime rangeStart, DateTime rangeEnd)
 		{
+			List<DateTime> occurrences = new List<DateTime>();
+
 			DateTime occurrence = taskStart;
-
-			while (occurrence < rangeStart)
+			while (occurrence <= taskEnd && occurrence <= rangeEnd)
 			{
+				if (occurrence >= rangeStart && occurrence <= rangeEnd)
+				{
+					occurrences.Add(occurrence);
+				}
 				occurrence = occurrence.AddMonths(1);
 			}
 
-			while (occurrence <= rangeEnd && occurrence <= taskEnd)
-			{
-				AddRow(task, occurrence);
-				occurrence = occurrence.AddMonths(1);
-			}
+			return occurrences;
 		}
 
 		private void AddRow(SchedulerTask task, DateTime occurrenceTime)

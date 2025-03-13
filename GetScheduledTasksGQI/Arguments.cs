@@ -5,7 +5,7 @@
 
 	public class Arguments
 	{
-		private readonly GQIStringArgument nameFilter = new GQIStringArgument("Name Filter") { IsRequired = true, DefaultValue = String.Empty };
+		private readonly GQIStringArgument nameFilter = new GQIStringArgument("Name Filter") { IsRequired = false, DefaultValue = ".*" };
 		private readonly GQIDateTimeArgument start = new GQIDateTimeArgument("Start") { IsRequired = true };
 		private readonly GQIDateTimeArgument end = new GQIDateTimeArgument("End") { IsRequired = true };
 		private readonly GQIIntArgument duration = new GQIIntArgument("Duration (s)") { IsRequired = true };
@@ -27,7 +27,7 @@
 		{
 			NameFilter = args.GetArgumentValue(nameFilter);
 			Start = args.GetArgumentValue(start);
-			End = args.GetArgumentValue(end);
+			End =args.GetArgumentValue(end);
 			Duration = args.GetArgumentValue(duration);
 		}
 	}
