@@ -20,9 +20,8 @@ namespace GetScheduledTasksGQI
 	{
 		private readonly Arguments arguments = new Arguments();
 		private List<GQIRow> rows = new List<GQIRow>();
-
+		private List<SchedulerTask> scheduledTasks = new List<SchedulerTask>();
 		private GQIDMS dms;
-		public List<SchedulerTask> ScheduledTasks = new List<SchedulerTask>();
 
 		public OnInitOutputArgs OnInit(OnInitInputArgs args)
 		{
@@ -39,14 +38,14 @@ namespace GetScheduledTasksGQI
 		{
 			arguments.ProcessArguments(args);
 
-			string userInput = arguments.NameFilter ?? "";
+			string userInput = arguments.NameFilter ?? string.Empty;
 			string regexPattern;
 			string escapedInput = Regex.Escape(userInput);
 
 			regexPattern = escapedInput.Replace("\\*", ".*"); // supporting * as wildcard
-
 			var tasks = GetTasks(task => Regex.IsMatch(task.TaskName, regexPattern));
-			ScheduledTasks.AddRange(tasks);
+
+			scheduledTasks.AddRange(tasks);
 
 			return new OnArgumentsProcessedOutputArgs();
 		}
@@ -67,7 +66,7 @@ namespace GetScheduledTasksGQI
 
 		public GQIPage GetNextPage(GetNextPageInputArgs args)
 		{
-			if (ScheduledTasks.IsNotNullOrEmpty())
+			if (scheduledTasks.IsNotNullOrEmpty())
 			{
 				ProcessScheduledTasks();
 			}
@@ -106,7 +105,7 @@ namespace GetScheduledTasksGQI
 			DateTime rangeStart = arguments.Start;
 			DateTime rangeEnd = arguments.End;
 
-			foreach (var task in ScheduledTasks)
+			foreach (var task in scheduledTasks)
 			{
 				DateTime taskStart = DateTime.SpecifyKind(task.StartTime, DateTimeKind.Utc);
 
