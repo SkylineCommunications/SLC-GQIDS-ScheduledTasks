@@ -96,13 +96,13 @@ namespace GetScheduledTasksGQI
 
 		private void ProcessScheduledTasks()
 		{
-			DateTime rangeStart = DateTime.SpecifyKind(arguments.Start, DateTimeKind.Utc);
-			DateTime rangeEnd = DateTime.SpecifyKind(arguments.End, DateTimeKind.Utc);
+			DateTime rangeStart =arguments.Start;
+			DateTime rangeEnd = arguments.End;
 
 			foreach (var task in scheduledTasks)
 			{
-				DateTime taskStart = DateTime.SpecifyKind(task.StartTime, DateTimeKind.Utc);
-				DateTime taskEnd = task.EndTime == DateTime.MinValue ? DateTime.MaxValue : DateTime.SpecifyKind(task.EndTime, DateTimeKind.Utc);
+				DateTime taskStart = task.StartTime;
+				DateTime taskEnd = task.EndTime == DateTime.MinValue ? DateTime.MaxValue : task.EndTime;
 
 				List<DateTime> occurrences = new List<DateTime>();
 
