@@ -191,7 +191,7 @@
 				{
 					if (int.TryParse(part, out int value) && value >= 100)
 					{
-						months.Add(value - 100); // Convert 101 → Jan, 102 → Feb, etc.
+						months.Add(value - 100); // Convert 101 > Jan, 102 > Feb, etc.
 					}
 				}
 			}

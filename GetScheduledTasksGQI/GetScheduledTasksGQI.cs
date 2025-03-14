@@ -144,41 +144,6 @@ namespace GetScheduledTasksGQI
 				}
 			}
 		}
-
-		private List<DateTime> GenerateRepeatingOccurrences(DateTime taskStart, DateTime taskEnd, DateTime rangeStart, DateTime rangeEnd, TimeSpan interval)
-		{
-			List<DateTime> occurrences = new List<DateTime>();
-
-			DateTime occurrence = taskStart;
-			while (occurrence <= taskEnd && occurrence <= rangeEnd)
-			{
-				if (occurrence >= rangeStart && occurrence <= rangeEnd)
-				{
-					occurrences.Add(occurrence);
-				}
-				occurrence = occurrence.Add(interval);
-			}
-
-			return occurrences;
-		}
-
-		private List<DateTime> GenerateMonthlyOccurrences(DateTime taskStart, DateTime taskEnd, DateTime rangeStart, DateTime rangeEnd)
-		{
-			List<DateTime> occurrences = new List<DateTime>();
-
-			DateTime occurrence = taskStart;
-			while (occurrence <= taskEnd && occurrence <= rangeEnd)
-			{
-				if (occurrence >= rangeStart && occurrence <= rangeEnd)
-				{
-					occurrences.Add(occurrence);
-				}
-				occurrence = occurrence.AddMonths(1);
-			}
-
-			return occurrences;
-		}
-
 		private void AddRow(SchedulerTask task, DateTime occurrenceTime)
 		{
 			rows.Add(new GQIRow(new[]
