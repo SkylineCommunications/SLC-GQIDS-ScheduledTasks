@@ -55,6 +55,11 @@ namespace GetScheduledTasksGQI
 				new GQIStringColumn("Type"),
 				new GQIStringColumn("DataMiner"),
 			};
+			foreach (var scriptData in arguments.ScriptParameterInputs)
+			{
+				columns.Add(new GQIStringColumn($"{scriptData.scriptName}.{scriptData.scriptPrameterID}"));
+			}
+
 			return columns.ToArray();
 		}
 
@@ -96,7 +101,7 @@ namespace GetScheduledTasksGQI
 
 		private void ProcessScheduledTasks()
 		{
-			DateTime rangeStart =arguments.Start;
+			DateTime rangeStart = arguments.Start;
 			DateTime rangeEnd = arguments.End;
 
 			foreach (var task in scheduledTasks)
@@ -145,9 +150,10 @@ namespace GetScheduledTasksGQI
 				}
 			}
 		}
+
 		private void AddRow(SchedulerTask task, DateTime occurrenceTime)
 		{
-			rows.Add(new GQIRow(new[]
+			var cells = new List<GQICell>
 			{
 				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime ,DateTimeKind.Utc) },
 				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime.AddSeconds(arguments.Duration) ,DateTimeKind.Utc) },
@@ -155,7 +161,44 @@ namespace GetScheduledTasksGQI
 				new GQICell { Value = task.Description },
 				new GQICell { Value = task.RepeatType.ToString() },
 				new GQICell { Value = task.HandlingDMA.ToString() },
-			}));
+			};
+
+
+			cells.AddRange(AddScriptCellsToRow(task));
+			rows.Add(new GQIRow(cells.ToArray()));
+		}
+
+		private List<GQICell> AddScriptCellsToRow(SchedulerTask task)
+		{
+			var additionalCells = new List<GQICell>();
+			var cellValue = string.Empty;
+
+			foreach (var scriptRun in arguments.ScriptParameterInputs)
+			{
+				if (task.Actions != null)
+				{
+					foreach (var action in task.Actions)
+					{
+						var script = action.ScriptInstance;
+						if (script != null && script.ParameterIdToValue != null && script.ParameterIdToValue.Count > 0 && string.Equals(script.ScriptName, scriptRun.scriptName))
+						{
+							foreach (var parameterValue in script.ParameterIdToValue)
+							{
+								if (parameterValue is AutomationScriptInstanceInfo automationScriptInstanceInfo)
+								{
+									if (automationScriptInstanceInfo.Key == scriptRun.scriptPrameterID)
+									{
+										cellValue = automationScriptInstanceInfo.Value;
+									}
+								}
+							}
+						}
+					}
+				}
+				additionalCells.Add(new GQICell { Value = cellValue });
+			}
+	
+			return additionalCells;
 		}
 	}
 }
