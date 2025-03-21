@@ -162,8 +162,6 @@ namespace GetScheduledTasksGQI
 				new GQICell { Value = task.RepeatType.ToString() },
 				new GQICell { Value = task.HandlingDMA.ToString() },
 			};
-
-
 			cells.AddRange(AddScriptCellsToRow(task));
 			rows.Add(new GQIRow(cells.ToArray()));
 		}
@@ -180,24 +178,24 @@ namespace GetScheduledTasksGQI
 					foreach (var action in task.Actions)
 					{
 						var script = action.ScriptInstance;
-						if (script != null && script.ParameterIdToValue != null && script.ParameterIdToValue.Count > 0 && string.Equals(script.ScriptName, scriptRun.scriptName))
+						if (script == null || script.ParameterIdToValue == null || script.ParameterIdToValue.Count == 0 || !string.Equals(script.ScriptName, scriptRun.scriptName, StringComparison.OrdinalIgnoreCase))
 						{
-							foreach (var parameterValue in script.ParameterIdToValue)
-							{
-								if (parameterValue is AutomationScriptInstanceInfo automationScriptInstanceInfo)
-								{
-									if (automationScriptInstanceInfo.Key == scriptRun.scriptPrameterID)
-									{
-										cellValue = automationScriptInstanceInfo.Value;
-									}
-								}
-							}
+							continue;
+						}
+
+						var automationInfo = script.ParameterIdToValue.OfType<AutomationScriptInstanceInfo>().FirstOrDefault(info => info.Key == scriptRun.scriptPrameterID);
+
+						if (automationInfo != null)
+						{
+							cellValue = automationInfo.Value;
+							break;
 						}
 					}
 				}
+
 				additionalCells.Add(new GQICell { Value = cellValue });
 			}
-	
+
 			return additionalCells;
 		}
 	}
