@@ -5,6 +5,8 @@ namespace GetScheduledTasksGQI
 	using System.Linq;
 	using System.Text.RegularExpressions;
 
+	using global::GetScheduledTasksGQI.DataHelpers;
+
 	using Skyline.DataMiner.Analytics.GenericInterface;
 	using Skyline.DataMiner.Net.Helper;
 	using Skyline.DataMiner.Net.Messages;
@@ -57,7 +59,7 @@ namespace GetScheduledTasksGQI
 			};
 			foreach (var scriptData in arguments.ScriptParameterInputs)
 			{
-				columns.Add(new GQIStringColumn($"{scriptData.scriptName}.{scriptData.scriptPrameterID}"));
+				columns.Add(new GQIStringColumn($"{scriptData.scriptName}.{scriptData.scriptParameterID}"));
 			}
 
 			return columns.ToArray();
@@ -183,7 +185,7 @@ namespace GetScheduledTasksGQI
 							continue;
 						}
 
-						var automationInfo = script.ParameterIdToValue.OfType<AutomationScriptInstanceInfo>().FirstOrDefault(info => info.Key == scriptRun.scriptPrameterID);
+						var automationInfo = script.ParameterIdToValue.OfType<AutomationScriptInstanceInfo>().FirstOrDefault(info => info.Key == scriptRun.scriptParameterID);
 
 						if (automationInfo != null)
 						{

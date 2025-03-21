@@ -1,53 +1,111 @@
 namespace SchedulerTasksGetter
 {
 	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text.RegularExpressions;
+
 	using Skyline.DataMiner.Analytics.GenericInterface;
+	using Skyline.DataMiner.Net.Messages;
 
 	/// <summary>
 	/// Represents a data source.
 	/// See: https://aka.dataminer.services/gqi-external-data-source for a complete example.
 	/// </summary>
-	[GQIMetaData(Name = "SchedulerTasksGetter")]
+	[GQIMetaData(Name = "SLC - GQI - Scheduled - Tasks")]
 	public sealed class SchedulerTasksGetter : IGQIDataSource
 		, IGQIOnInit
 		, IGQIInputArguments
 	{
+		private GQIDMS dms;
+		private GQIStringArgument nameFilterArgument;
+		private List<SchedulerTask> scheduledTasks = new List<SchedulerTask>();
+		private string nameFilter;
+
 		public OnInitOutputArgs OnInit(OnInitInputArgs args)
 		{
-			// Initialize the data source
-			// See: https://aka.dataminer.services/igqioninit-oninit
+			dms = args.DMS;
 			return default;
 		}
 
 		public GQIArgument[] GetInputArguments()
 		{
-			// Define data source input arguments
-			// See: https://aka.dataminer.services/igqiinputarguments-getinputarguments
-			return Array.Empty<GQIArgument>();
+			nameFilterArgument = new GQIStringArgument("Name Filter") { IsRequired = false, DefaultValue = ".*" };
+			return new GQIArgument[] { nameFilterArgument };
 		}
 
 		public OnArgumentsProcessedOutputArgs OnArgumentsProcessed(OnArgumentsProcessedInputArgs args)
 		{
-			// Process input argument values
-			// See: https://aka.dataminer.services/igqiinputarguments-onargumentsprocessed
-			return default;
+			nameFilter = args.GetArgumentValue(nameFilterArgument);
+			var tasks = GetTasks(task => Regex.IsMatch(task.TaskName, nameFilter, RegexOptions.IgnoreCase));
+			scheduledTasks.AddRange(tasks);
+			return new OnArgumentsProcessedOutputArgs();
 		}
 
 		public GQIColumn[] GetColumns()
 		{
-			// Define data source columns
-			// See: https://aka.dataminer.services/igqidatasource-getcolumns
-			return Array.Empty<GQIColumn>();
+			var columns = new List<GQIColumn>
+			{
+				new GQIStringColumn("Name"),
+				new GQIStringColumn("Description"),
+				new GQIStringColumn("Type"),
+				new GQIStringColumn("DataMiner"),
+			};
+			return columns.ToArray();
 		}
 
 		public GQIPage GetNextPage(GetNextPageInputArgs args)
 		{
-			// Define data source rows
-			// See: https://aka.dataminer.services/igqidatasource-getnextpage
-			return new GQIPage(Array.Empty<GQIRow>())
+			var rows = ProcessRows();
+			return new GQIPage(rows.ToArray())
 			{
 				HasNextPage = false,
 			};
+		}
+
+		private List<GQIRow> ProcessRows()
+		{
+			var rows = new List<GQIRow>();
+			foreach (var task in scheduledTasks)
+			{
+				var cells = new List<GQICell>
+				{
+					new GQICell { Value = task.TaskName },
+					new GQICell { Value = task.Description },
+					new GQICell { Value = task.RepeatType.ToString() },
+					new GQICell { Value = task.HandlingDMA.ToString() },
+				};
+
+				rows.Add(new GQIRow(cells.ToArray()));
+			}
+
+			return rows;
+		}
+
+		private IEnumerable<SchedulerTask> GetTasks(Func<Skyline.DataMiner.Net.Messages.SchedulerTask, bool> selector)
+		{
+			var result = new List<Skyline.DataMiner.Net.Messages.SchedulerTask>();
+			GetInfoMessage getInfoMessage = new GetInfoMessage
+			{
+				Type = InfoType.SchedulerTasks,
+			};
+
+			var schedulerInfo = dms.SendMessages(getInfoMessage).OfType<GetSchedulerTasksResponseMessage>();
+
+			var tasksList = schedulerInfo.FirstOrDefault();
+
+			if (tasksList?.Tasks != null)
+			{
+				foreach (var task in tasksList.Tasks)
+				{
+					if (task is Skyline.DataMiner.Net.Messages.SchedulerTask scheduleTask && selector(scheduleTask))
+					{
+						result.Add(scheduleTask);
+					}
+				}
+			}
+
+			return result;
 		}
 	}
 }

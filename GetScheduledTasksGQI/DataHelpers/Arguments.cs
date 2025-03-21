@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace GetScheduledTasksGQI
+﻿namespace GetScheduledTasksGQI.DataHelpers
 {
 	using System;
 	using System.Collections.Generic;
@@ -34,7 +32,7 @@ namespace GetScheduledTasksGQI
 		{
 			NameFilter = args.GetArgumentValue(nameFilter);
 			Start = args.GetArgumentValue(start);
-			End =args.GetArgumentValue(end);
+			End = args.GetArgumentValue(end);
 			Duration = args.GetArgumentValue(duration);
 			var scriptRunData = ParseScriptData(args.GetArgumentValue(scriptParameterInputs));
 			ScriptParameterInputs.AddRange(scriptRunData);
@@ -45,7 +43,7 @@ namespace GetScheduledTasksGQI
 			var scriptDates = new List<ScriptRunData>();
 
 			string[] items = input.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-	
+
 			foreach (var item in items)
 			{
 				string[] parts = item.Split('.');
@@ -57,7 +55,7 @@ namespace GetScheduledTasksGQI
 						scriptDates.Add(new ScriptRunData
 						{
 							scriptName = parts[0],
-							scriptPrameterID = id,
+							scriptParameterID = id,
 						});
 					}
 
@@ -65,12 +63,5 @@ namespace GetScheduledTasksGQI
 			}
 			return scriptDates;
 		}
-	}
-	public class ScriptRunData
-	{
-		public string scriptName;
-
-		public int scriptPrameterID;
-
 	}
 }

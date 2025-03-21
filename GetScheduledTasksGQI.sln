@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Analysis", "Code Analy
 		Internal\Code Analysis\stylecop.json = Internal\Code Analysis\stylecop.json
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchedulerTasksGetter", "SchedulerTasksGetter\SchedulerTasksGetter.csproj", "{7AFCF93E-5CBC-457E-B135-9779C599DBD0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,10 @@ Global
 		{0ED85FB2-890B-4486-BB4C-C3CBA7AB8617}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0ED85FB2-890B-4486-BB4C-C3CBA7AB8617}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0ED85FB2-890B-4486-BB4C-C3CBA7AB8617}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AFCF93E-5CBC-457E-B135-9779C599DBD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AFCF93E-5CBC-457E-B135-9779C599DBD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AFCF93E-5CBC-457E-B135-9779C599DBD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AFCF93E-5CBC-457E-B135-9779C599DBD0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
