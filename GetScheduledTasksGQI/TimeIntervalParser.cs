@@ -12,7 +12,7 @@
 		{
 			List<DateTime> occurrences = new List<DateTime>();
 			int intervalMinutes = GetRepeatIntervalInMinutes(repeatInterval);
-			DateTime dailyOccurrence = new DateTime(rangeStart.Year, rangeStart.Month, rangeStart.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
+			DateTime dailyOccurrence = new DateTime(rangeStart.Year, rangeStart.Month, rangeStart.Day, rangeStart.Hour, taskStart.Minute, taskStart.Second);
 
 			if (intervalMinutes == 0)
 			{
@@ -20,7 +20,7 @@
 			}
 			else
 			{
-				while (dailyOccurrence <= rangeEnd)
+				if (dailyOccurrence <= rangeEnd )
 				{
 					DateTime dayOccurrence = dailyOccurrence;
 
@@ -32,12 +32,9 @@
 						}
 
 						dayOccurrence = dayOccurrence.AddMinutes(intervalMinutes);
-					}
-
-					dailyOccurrence = dailyOccurrence.AddDays(1);
+					}	
 				}
 			}
-
 			return occurrences;
 		}
 

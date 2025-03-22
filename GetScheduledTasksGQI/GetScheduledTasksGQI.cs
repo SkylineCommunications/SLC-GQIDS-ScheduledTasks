@@ -8,6 +8,7 @@ namespace GetScheduledTasksGQI
 	using global::GetScheduledTasksGQI.DataHelpers;
 
 	using Skyline.DataMiner.Analytics.GenericInterface;
+	using Skyline.DataMiner.Net;
 	using Skyline.DataMiner.Net.Helper;
 	using Skyline.DataMiner.Net.Messages;
 
