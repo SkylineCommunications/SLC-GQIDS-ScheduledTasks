@@ -159,7 +159,7 @@ namespace GetScheduledTasksGQI
 			var cells = new List<GQICell>
 			{
 				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime ,DateTimeKind.Utc) },
-				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime.AddSeconds(arguments.Duration) ,DateTimeKind.Utc) },
+				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime.AddSeconds(arguments.Duration),DateTimeKind.Utc)},
 				new GQICell { Value = task.TaskName },
 				new GQICell { Value = task.Description },
 				new GQICell { Value = task.RepeatType.ToString() },
