@@ -45,13 +45,13 @@ short_description: This is a custom solution for DataMiner.
 # A valid URL that points to the source code.
 #   A valid URL
 #   Max length: 2048 characters
-source_code_url:
+source_code_url: https://github.com/SkylineCommunications/SLC-GQIDS-ScheduledTasks
 
 # [Optional]
 # A valid URL that points to documentation.
 #   A valid URL
 #   Max length: 2048 characters
-documentation_url: 
+documentation_url: https://github.com/SkylineCommunications/SLC-GQIDS-ScheduledTasks
 
 # [Optional]
 # People who are responsible for this Catalog item. Might be developers, but this is not required.
