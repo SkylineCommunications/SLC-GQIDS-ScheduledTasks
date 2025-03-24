@@ -12,7 +12,7 @@
 		{
 			List<DateTime> occurrences = new List<DateTime>();
 			int intervalMinutes = GetRepeatIntervalInMinutes(repeatInterval);
-			DateTime dailyOccurrence = new DateTime(rangeStart.Year, rangeStart.Month, rangeStart.Day, rangeStart.Hour, taskStart.Minute, taskStart.Second, DateTimeKind.Utc);
+			DateTime dailyOccurrence = new DateTime(rangeStart.Year, rangeStart.Month, rangeStart.Day, rangeStart.Hour, taskStart.Minute, taskStart.Second);
 
 			if (intervalMinutes == 0)
 			{
@@ -55,7 +55,7 @@
 				{
 					if (allowedDays.Contains(current.DayOfWeek))
 					{
-						DateTime occ = new DateTime(current.Year, current.Month, current.Day, taskStart.Hour, taskStart.Minute, taskStart.Second,DateTimeKind.Utc);
+						DateTime occ = new DateTime(current.Year, current.Month, current.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
 						if (occ >= rangeStart && occ <= rangeEnd)
 						{
 							occurrences.Add(occ);
@@ -66,12 +66,7 @@
 			}
 			else
 			{
-				DateTime occurrence = taskStart;
-
-				while (occurrence < rangeStart)
-				{
-					occurrence = occurrence.AddMinutes(intervalMinutes);
-				}
+				DateTime occurrence = new DateTime(rangeStart.Year, rangeStart.Month, rangeStart.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
 
 				while (occurrence <= rangeEnd)
 				{
@@ -97,7 +92,7 @@
 
 			if (intervalMinutes == 0)
 			{
-				DateTime currentMonth = new DateTime(rangeStart.Year, rangeStart.Month, 1).ToUniversalTime();
+				DateTime currentMonth = new DateTime(rangeStart.Year, rangeStart.Month, 1);
 				while (currentMonth <= rangeEnd)
 				{
 					if (allowedMonths.Contains(currentMonth.Month))
@@ -106,7 +101,7 @@
 						{
 							if (day <= DateTime.DaysInMonth(currentMonth.Year, currentMonth.Month))
 							{
-								DateTime occ = new DateTime(currentMonth.Year, currentMonth.Month, day, taskStart.Hour, taskStart.Minute, taskStart.Second, DateTimeKind.Utc);
+								DateTime occ = new DateTime(currentMonth.Year, currentMonth.Month, day, taskStart.Hour, taskStart.Minute, taskStart.Second);
 								if (occ >= rangeStart && occ <= rangeEnd)
 								{
 									occurrences.Add(occ);
@@ -119,19 +114,28 @@
 			}
 			else
 			{
-				DateTime occurrence = taskStart;
-				while (occurrence < rangeStart)
+				DateTime currentDay = rangeStart.Date;
+				while (currentDay <= rangeEnd.Date)
 				{
-					occurrence = occurrence.AddMinutes(intervalMinutes);
-				}
-				while (occurrence <= rangeEnd)
-				{
-					if (allowedDays.Contains(occurrence.Day) && allowedMonths.Contains(occurrence.Month) && occurrence < rangeEnd)
-					{
-						occurrences.Add(occurrence);
-					}
 
-					occurrence = occurrence.AddMinutes(intervalMinutes);
+					if (allowedMonths.Contains(currentDay.Month))
+					{
+						DateTime baseOccurrence = new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
+						if (allowedDays.Contains(baseOccurrence.Day))
+						{
+							DateTime endOfDay = currentDay.AddDays(1);
+							DateTime occ = baseOccurrence;
+							while (occ < endOfDay && occ <= rangeEnd)
+							{
+								if (occ >= rangeStart)
+								{
+									occurrences.Add(occ);
+								}
+								occ = occ.AddMinutes(intervalMinutes);
+							}
+						}
+					}
+					currentDay = currentDay.AddDays(1);
 				}
 			}
 

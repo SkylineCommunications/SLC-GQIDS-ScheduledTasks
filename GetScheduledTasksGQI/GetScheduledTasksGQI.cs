@@ -110,9 +110,10 @@ namespace GetScheduledTasksGQI
 			foreach (var task in scheduledTasks)
 			{
 				// DM returns scheduler Task info in local Timestamps
+
 				DateTime taskStart = DateTime.SpecifyKind(task.StartTime, DateTimeKind.Local).ToUniversalTime();
 				DateTime taskEnd = task.EndTime == DateTime.MinValue ? DateTime.MaxValue : DateTime.SpecifyKind(task.EndTime, DateTimeKind.Local).ToUniversalTime();
-
+			
 				List<DateTime> occurrences = new List<DateTime>();
 
 				if (!string.IsNullOrEmpty(task.RepeatInterval))
@@ -158,7 +159,7 @@ namespace GetScheduledTasksGQI
 		{
 			var cells = new List<GQICell>
 			{
-				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime ,DateTimeKind.Utc) },
+				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime, DateTimeKind.Utc) },
 				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime.AddSeconds(arguments.Duration),DateTimeKind.Utc)},
 				new GQICell { Value = task.TaskName },
 				new GQICell { Value = task.Description },
