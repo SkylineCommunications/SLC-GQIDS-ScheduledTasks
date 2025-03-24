@@ -110,10 +110,8 @@ namespace GetScheduledTasksGQI
 			foreach (var task in scheduledTasks)
 			{
 				// DM returns scheduler Task info in local Timestamps
-
 				DateTime taskStart = DateTime.SpecifyKind(task.StartTime, DateTimeKind.Local).ToUniversalTime();
 				DateTime taskEnd = task.EndTime == DateTime.MinValue ? DateTime.MaxValue : DateTime.SpecifyKind(task.EndTime, DateTimeKind.Local).ToUniversalTime();
-			
 				List<DateTime> occurrences = new List<DateTime>();
 
 				if (!string.IsNullOrEmpty(task.RepeatInterval))

@@ -66,15 +66,24 @@
 			}
 			else
 			{
-				DateTime occurrence = new DateTime(rangeStart.Year, rangeStart.Month, rangeStart.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
-
-				while (occurrence <= rangeEnd)
+				DateTime currentDay = rangeStart.Date;
+				while (currentDay <= rangeEnd.Date)
 				{
-					if (allowedDays.Contains(occurrence.DayOfWeek))
+					if (allowedDays.Contains(currentDay.DayOfWeek))
 					{
-						occurrences.Add(occurrence);
+						DateTime baseOccurrence = new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
+						DateTime dayEnd = currentDay.AddDays(1);
+						DateTime occ = baseOccurrence;
+						while (occ < dayEnd && occ <= rangeEnd)
+						{
+							if (occ >= rangeStart)
+							{
+								occurrences.Add(occ);
+							}
+							occ = occ.AddMinutes(intervalMinutes);
+						}
 					}
-					occurrence = occurrence.AddMinutes(intervalMinutes);
+					currentDay = currentDay.AddDays(1);
 				}
 			}
 			return occurrences;
@@ -117,7 +126,6 @@
 				DateTime currentDay = rangeStart.Date;
 				while (currentDay <= rangeEnd.Date)
 				{
-
 					if (allowedMonths.Contains(currentDay.Month))
 					{
 						DateTime baseOccurrence = new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
