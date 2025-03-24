@@ -40,8 +40,7 @@ namespace GetScheduledTasksGQI
 		public OnArgumentsProcessedOutputArgs OnArgumentsProcessed(OnArgumentsProcessedInputArgs args)
 		{
 			arguments.ProcessArguments(args);
-			var tasks = GetTasks(task => Regex.IsMatch(task.TaskName, arguments.NameFilter, RegexOptions.IgnoreCase) && task.Enabled && (task.EndTime == DateTime.MinValue || (task.EndTime >= arguments.Start && task.EndTime <= arguments.End)));
-
+			var tasks = GetTasks(task => Regex.IsMatch(task.TaskName, arguments.NameFilter, RegexOptions.IgnoreCase) && task.Enabled);
 			scheduledTasks.AddRange(tasks);
 
 			return new OnArgumentsProcessedOutputArgs();
@@ -104,30 +103,31 @@ namespace GetScheduledTasksGQI
 
 		private void ProcessScheduledTasks()
 		{
+
 			DateTime rangeStart = arguments.Start;
 			DateTime rangeEnd = arguments.End;
 
 			foreach (var task in scheduledTasks)
 			{
 				// DM returns scheduler Task info in local Timestamps
-				DateTime taskStart = DateTime.SpecifyKind(task.StartTime, DateTimeKind.Local).ToUniversalTime();
-				DateTime taskEnd = task.EndTime == DateTime.MinValue ? DateTime.MaxValue : DateTime.SpecifyKind(task.EndTime, DateTimeKind.Local).ToUniversalTime();
-				List<DateTime> occurrences = new List<DateTime>();
+				DateTime taskStart = DateTime.SpecifyKind(task.StartTime, DateTimeKind.Local);
+				DateTime taskEnd = task.EndTime == DateTime.MinValue ? DateTime.MaxValue : DateTime.SpecifyKind(task.EndTime, DateTimeKind.Local);
 
+				List<DateTime> occurrences = new List<DateTime>();
 				if (!string.IsNullOrEmpty(task.RepeatInterval))
 				{
 					switch (task.RepeatType)
 					{
 						case SchedulerRepeatType.Monthly:
-							occurrences = TimeIntervalParser.ParseMonthlyTask(task.RepeatInterval, task.RepeatIntervalInMinutes, rangeStart, rangeEnd, taskStart);
+							occurrences = TimeIntervalParser.ParseMonthlyTask(task.RepeatInterval, task.RepeatIntervalInMinutes, rangeStart, rangeEnd, taskStart, taskEnd);
 							break;
 
 						case SchedulerRepeatType.Weekly:
-							occurrences = TimeIntervalParser.ParseWeeklyTask(task.RepeatInterval, task.RepeatIntervalInMinutes, rangeStart, rangeEnd, taskStart);
+							occurrences = TimeIntervalParser.ParseWeeklyTask(task.RepeatInterval, task.RepeatIntervalInMinutes, rangeStart, rangeEnd, taskStart, taskEnd);
 							break;
 
 						case SchedulerRepeatType.Daily:
-							occurrences = TimeIntervalParser.ParseDailyTask(task.RepeatInterval, task.RepeatIntervalInMinutes, rangeStart, rangeEnd, taskStart);
+							occurrences = TimeIntervalParser.ParseDailyTask(task.RepeatInterval, task.RepeatIntervalInMinutes, rangeStart, rangeEnd, taskStart, taskEnd);
 							break;
 						case SchedulerRepeatType.Once:
 							if (taskStart >= rangeStart && taskStart <= rangeEnd)
@@ -158,7 +158,7 @@ namespace GetScheduledTasksGQI
 			var cells = new List<GQICell>
 			{
 				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime, DateTimeKind.Utc) },
-				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime.AddSeconds(arguments.Duration),DateTimeKind.Utc)},
+				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime.AddSeconds(arguments.Duration), DateTimeKind.Utc)},
 				new GQICell { Value = task.TaskName },
 				new GQICell { Value = task.Description },
 				new GQICell { Value = task.RepeatType.ToString() },

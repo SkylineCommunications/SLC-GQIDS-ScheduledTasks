@@ -3,78 +3,85 @@
 	using System;
 	using System.Collections.Generic;
 
+	using Skyline.DataMiner.Analytics.GenericInterface;
+
 	public static class TimeIntervalParser
 	{
 		/// <summary>
 		/// Parses daily tasks based on repeat interval in minutes.
 		/// </summary>
-		public static List<DateTime> ParseDailyTask(string repeatInterval, string repeatIntervalInMinutes, DateTime rangeStart, DateTime rangeEnd, DateTime taskStart)
+		public static List<DateTime> ParseDailyTask(string repeatInterval, string repeatIntervalInMinutes, DateTime rangeStart, DateTime rangeEnd, DateTime taskStart, DateTime taskEnd)
 		{
 			List<DateTime> occurrences = new List<DateTime>();
 			int intervalMinutes = GetRepeatIntervalInMinutes(repeatInterval);
-			DateTime dailyOccurrence = new DateTime(rangeStart.Year, rangeStart.Month, rangeStart.Day, rangeStart.Hour, taskStart.Minute, taskStart.Second);
+			DateTime overallUpperBound = (taskEnd == DateTime.MaxValue) ? rangeEnd : taskEnd;
+			DateTime currentDay = rangeStart.Date;
+			while (currentDay <= overallUpperBound.Date)
+			{
+				DateTime baseOccurrence = new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
 
-			if (intervalMinutes == 0)
-			{
-				AddDailyOccurrences(dailyOccurrence, rangeStart, rangeEnd, occurrences);
-			}
-			else
-			{
-				if (dailyOccurrence <= rangeEnd)
+				// Daily cutoff:
+				// - If taskEnd is MaxValue then cutoff is the start of the next day.
+				// - Otherwise, the cutoff is the current day with taskEnd's time.
+				DateTime dailyCutoff = (taskEnd == DateTime.MaxValue) ? currentDay.AddDays(1) : new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskEnd.Hour, taskEnd.Minute, taskEnd.Second);
+
+				if (intervalMinutes == 0)
 				{
-					DateTime dayOccurrence = dailyOccurrence;
-
-					while (dayOccurrence <= rangeEnd)
+					if (baseOccurrence >= rangeStart && baseOccurrence <= overallUpperBound && baseOccurrence <= dailyCutoff)
 					{
-						if (dayOccurrence >= rangeStart)
-						{
-							occurrences.Add(dayOccurrence);
-						}
-
-						dayOccurrence = dayOccurrence.AddMinutes(intervalMinutes);
+						occurrences.Add(baseOccurrence);
 					}
 				}
+				else
+				{
+					// With minute interval: start at baseOccurrence and add until reaching the daily cutoff.
+					DateTime occ = baseOccurrence;
+					while (occ < dailyCutoff && occ <= overallUpperBound)
+					{
+						if (occ >= rangeStart && occ >= taskStart)
+						{
+							occurrences.Add(occ);
+						}
+						occ = occ.AddMinutes(intervalMinutes);
+					}
+
+				}
+				currentDay = currentDay.AddDays(1);
 			}
 
 			return occurrences;
 		}
 
-		/// <summary>
-		/// Parses weekly tasks considering the day of the week and repeat interval in minutes.
-		/// </summary>
-		public static List<DateTime> ParseWeeklyTask(string repeatInterval, string repeatIntervalInMinutes, DateTime rangeStart, DateTime rangeEnd, DateTime taskStart)
+		public static List<DateTime> ParseWeeklyTask(string repeatInterval,	string repeatIntervalInMinutes,	DateTime rangeStart,DateTime rangeEnd,	DateTime taskStart,	DateTime taskEnd)
 		{
 			List<DateTime> occurrences = new List<DateTime>();
 			List<DayOfWeek> allowedDays = GetValidDays(repeatInterval, taskStart);
 			int intervalMinutes = GetRepeatIntervalInMinutes(repeatIntervalInMinutes);
 
-			if (intervalMinutes == 0)
+			DateTime overallUpperBound = (taskEnd == DateTime.MaxValue) ? rangeEnd : taskEnd;
+
+			DateTime current = rangeStart.Date;
+			while (current <= overallUpperBound.Date)
 			{
-				DateTime current = rangeStart.Date;
-				while (current <= rangeEnd.Date)
+				if (allowedDays.Contains(current.DayOfWeek))
 				{
-					if (allowedDays.Contains(current.DayOfWeek))
+					DateTime baseOccurrence = new DateTime(current.Year, current.Month, current.Day,  taskStart.Hour, taskStart.Minute, taskStart.Second, taskStart.Kind);
+
+					// Daily cutoff: if taskEnd is MaxValue then cutoff is the start of next day;
+					// otherwise, cutoff is current day combined with taskEnd's time.
+					DateTime dailyCutoff = (taskEnd == DateTime.MaxValue)? current.AddDays(1): new DateTime(current.Year, current.Month, current.Day, taskEnd.Hour, taskEnd.Minute, taskEnd.Second, taskEnd.Kind);
+
+					if (intervalMinutes == 0)
 					{
-						DateTime occ = new DateTime(current.Year, current.Month, current.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
-						if (occ >= rangeStart && occ <= rangeEnd)
+						if (baseOccurrence >= rangeStart && baseOccurrence <= overallUpperBound && baseOccurrence < dailyCutoff)
 						{
-							occurrences.Add(occ);
+							occurrences.Add(baseOccurrence);
 						}
 					}
-					current = current.AddDays(1);
-				}
-			}
-			else
-			{
-				DateTime currentDay = rangeStart.Date;
-				while (currentDay <= rangeEnd.Date)
-				{
-					if (allowedDays.Contains(currentDay.DayOfWeek))
+					else
 					{
-						DateTime baseOccurrence = new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
-						DateTime dayEnd = currentDay.AddDays(1);
 						DateTime occ = baseOccurrence;
-						while (occ < dayEnd && occ <= rangeEnd)
+						while (occ < dailyCutoff && occ <= overallUpperBound)
 						{
 							if (occ >= rangeStart)
 							{
@@ -83,25 +90,25 @@
 							occ = occ.AddMinutes(intervalMinutes);
 						}
 					}
-					currentDay = currentDay.AddDays(1);
 				}
+				current = current.AddDays(1);
 			}
-			return occurrences;
-		}
 
-		/// <summary>
-		/// Parses monthly tasks considering the specified days and months.
-		/// </summary>
-		public static List<DateTime> ParseMonthlyTask(string repeatInterval, string repeatIntervalInMinutes, DateTime rangeStart, DateTime rangeEnd, DateTime taskStart)
+			return occurrences;
+		
+		}
+		public static List<DateTime> ParseMonthlyTask(string repeatInterval,	string repeatIntervalInMinutes,	DateTime rangeStart,	DateTime rangeEnd,	DateTime taskStart,	DateTime taskEnd)
 		{
 			List<DateTime> occurrences = new List<DateTime>();
 			HashSet<int> allowedDays = GetDaysFromRepeatInterval(repeatInterval, taskStart);
 			HashSet<int> allowedMonths = GetMonthsFromRepeatInterval(repeatInterval, taskStart);
 			int intervalMinutes = GetRepeatIntervalInMinutes(repeatIntervalInMinutes);
+			bool useCutoff = (taskEnd != DateTime.MaxValue) && (taskEnd.Date == DateTime.MinValue);
 
 			if (intervalMinutes == 0)
 			{
-				DateTime currentMonth = new DateTime(rangeStart.Year, rangeStart.Month, 1);
+				// One occurrence per allowed day.
+				DateTime currentMonth = new DateTime(rangeStart.Year, rangeStart.Month, 1).ToUniversalTime();
 				while (currentMonth <= rangeEnd)
 				{
 					if (allowedMonths.Contains(currentMonth.Month))
@@ -111,7 +118,10 @@
 							if (day <= DateTime.DaysInMonth(currentMonth.Year, currentMonth.Month))
 							{
 								DateTime occ = new DateTime(currentMonth.Year, currentMonth.Month, day, taskStart.Hour, taskStart.Minute, taskStart.Second);
-								if (occ >= rangeStart && occ <= rangeEnd)
+								DateTime dailyCutoff = useCutoff
+									? new DateTime(currentMonth.Year, currentMonth.Month, day, taskEnd.Hour, taskEnd.Minute, taskEnd.Second)
+									: occ.Date.AddDays(1);
+								if (occ >= rangeStart && occ <= rangeEnd && occ <= dailyCutoff)
 								{
 									occurrences.Add(occ);
 								}
@@ -123,24 +133,24 @@
 			}
 			else
 			{
+				// With minute interval, iterate day by day.
 				DateTime currentDay = rangeStart.Date;
 				while (currentDay <= rangeEnd.Date)
 				{
-					if (allowedMonths.Contains(currentDay.Month))
+					if (allowedMonths.Contains(currentDay.Month) && allowedDays.Contains(currentDay.Day))
 					{
 						DateTime baseOccurrence = new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
-						if (allowedDays.Contains(baseOccurrence.Day))
+						DateTime dailyCutoff = useCutoff
+							? new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskEnd.Hour, taskEnd.Minute, taskEnd.Second)
+							: currentDay.AddDays(1);
+						DateTime occ = baseOccurrence;
+						while (occ < dailyCutoff && occ <= rangeEnd)
 						{
-							DateTime endOfDay = currentDay.AddDays(1);
-							DateTime occ = baseOccurrence;
-							while (occ < endOfDay && occ <= rangeEnd)
+							if (occ >= rangeStart)
 							{
-								if (occ >= rangeStart)
-								{
-									occurrences.Add(occ);
-								}
-								occ = occ.AddMinutes(intervalMinutes);
+								occurrences.Add(occ);
 							}
+							occ = occ.AddMinutes(intervalMinutes);
 						}
 					}
 					currentDay = currentDay.AddDays(1);
@@ -190,25 +200,6 @@
 
 			return intervalMinutes;
 		}
-
-		/// <summary>
-		/// Adds occurrences daily between the specified range.
-		/// </summary>
-		private static void AddDailyOccurrences(DateTime initialOccurrence, DateTime rangeStart, DateTime rangeEnd, List<DateTime> occurrences)
-		{
-			DateTime dailyOccurrence = initialOccurrence;
-
-			while (dailyOccurrence <= rangeEnd)
-			{
-				if (dailyOccurrence >= rangeStart)
-				{
-					occurrences.Add(dailyOccurrence);
-				}
-
-				dailyOccurrence = dailyOccurrence.AddDays(1);
-			}
-		}
-
 		private static HashSet<int> GetDaysFromRepeatInterval(string repeatInterval, DateTime taskStart)
 		{
 			HashSet<int> days = new HashSet<int>();
