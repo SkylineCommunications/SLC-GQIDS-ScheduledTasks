@@ -104,8 +104,8 @@ namespace GetScheduledTasksGQI
 
 		private void ProcessScheduledTasks()
 		{
-			DateTime rangeStart = arguments.Start;
-			DateTime rangeEnd = arguments.End;
+			var rangeStart = arguments.Start;
+			var rangeEnd = arguments.End;
 
 			foreach (var task in scheduledTasks)
 			{
@@ -180,10 +180,10 @@ namespace GetScheduledTasksGQI
 				{
 					foreach (var action in task.Actions)
 					{
+						cellValue = String.Empty;
 						var script = action.ScriptInstance;
 						if (script == null || script.ParameterIdToValue == null || script.ParameterIdToValue.Count == 0 || !string.Equals(script.ScriptName, scriptRun.scriptName, StringComparison.OrdinalIgnoreCase))
 						{
-							cellValue = String.Empty;
 							continue;
 						}
 

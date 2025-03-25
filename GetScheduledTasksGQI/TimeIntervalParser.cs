@@ -97,8 +97,8 @@
 		/// <returns> Returns list of timings when the task will be executed.</returns>
 		public static List<DateTime> ParseMonthlyTask(string repeatInterval, string repeatIntervalInMinutes, DateTime rangeStart, DateTime rangeEnd, DateTime taskStart, DateTime taskEnd)
 		{
-			List<DateTime> occurrences = new List<DateTime>();
-			HashSet<int> allowedDays = GetDaysFromRepeatInterval(repeatInterval, taskStart);
+			var occurrences = new List<DateTime>();
+			var allowedDays = GetDaysFromRepeatInterval(repeatInterval, taskStart);
 			var allowedMonths = GetMonthsFromRepeatInterval(repeatInterval, taskStart);
 			int intervalMinutes = GetRepeatIntervalInMinutes(repeatIntervalInMinutes);
 			bool useCutoff = (taskEnd != DateTime.MaxValue) && (taskEnd.Date == DateTime.MinValue);
