@@ -8,7 +8,6 @@ namespace GetScheduledTasksGQI
 	using global::GetScheduledTasksGQI.DataHelpers;
 
 	using Skyline.DataMiner.Analytics.GenericInterface;
-	using Skyline.DataMiner.Net;
 	using Skyline.DataMiner.Net.Helper;
 	using Skyline.DataMiner.Net.Messages;
 
@@ -19,11 +18,11 @@ namespace GetScheduledTasksGQI
 	/// See: https://aka.dataminer.services/gqi-external-data-source for a complete example.
 	/// </summary>
 	[GQIMetaData(Name = "Get Scheduled Tasks")]
-	public class GetScheduledTasksGQI : IGQIDataSource, IGQIInputArguments, IGQIOnInit
+	public class GetScheduledTasksGQI : IGQIDataSource, IGQIInputArguments, IGQIOnInit, IGQIOnPrepareFetch
 	{
 		private readonly Arguments arguments = new Arguments();
-		private List<GQIRow> rows = new List<GQIRow>();
-		private List<SchedulerTask> scheduledTasks = new List<SchedulerTask>();
+		private readonly List<GQIRow> rows = new List<GQIRow>();
+		private readonly List<SchedulerTask> scheduledTasks = new List<SchedulerTask>();
 		private GQIDMS dms;
 
 		public OnInitOutputArgs OnInit(OnInitInputArgs args)
@@ -57,12 +56,17 @@ namespace GetScheduledTasksGQI
 				new GQIStringColumn("Type"),
 				new GQIStringColumn("DataMiner"),
 			};
+
 			foreach (var scriptData in arguments.ScriptParameterInputs)
 			{
 				columns.Add(new GQIStringColumn($"{scriptData.scriptName}.{scriptData.scriptParameterID}"));
 			}
 
 			return columns.ToArray();
+		}
+		public OnPrepareFetchOutputArgs OnPrepareFetch(OnPrepareFetchInputArgs args)
+		{
+			throw new NotImplementedException();
 		}
 
 		public GQIPage GetNextPage(GetNextPageInputArgs args)
@@ -103,15 +107,14 @@ namespace GetScheduledTasksGQI
 
 		private void ProcessScheduledTasks()
 		{
-
 			DateTime rangeStart = arguments.Start;
 			DateTime rangeEnd = arguments.End;
 
 			foreach (var task in scheduledTasks)
 			{
 				// DM returns scheduler Task info in local Timestamps
-				DateTime taskStart = DateTime.SpecifyKind(task.StartTime, DateTimeKind.Local);
-				DateTime taskEnd = task.EndTime == DateTime.MinValue ? DateTime.MaxValue : DateTime.SpecifyKind(task.EndTime, DateTimeKind.Local);
+				var taskStart = DateTime.SpecifyKind(task.StartTime, DateTimeKind.Local);
+				var taskEnd = task.EndTime == DateTime.MinValue ? DateTime.MaxValue : DateTime.SpecifyKind(task.EndTime, DateTimeKind.Local);
 
 				List<DateTime> occurrences = new List<DateTime>();
 				if (!string.IsNullOrEmpty(task.RepeatInterval))
@@ -127,13 +130,14 @@ namespace GetScheduledTasksGQI
 							break;
 
 						case SchedulerRepeatType.Daily:
-							occurrences = TimeIntervalParser.ParseDailyTask(task.RepeatInterval, task.RepeatIntervalInMinutes, rangeStart, rangeEnd, taskStart, taskEnd);
+							occurrences = TimeIntervalParser.ParseDailyTask(task.RepeatInterval, rangeStart, rangeEnd, taskStart, taskEnd);
 							break;
 						case SchedulerRepeatType.Once:
 							if (taskStart >= rangeStart && taskStart <= rangeEnd)
 							{
 								occurrences.Add(taskStart);
 							}
+
 							break;
 						default:
 							// do nothing
@@ -171,7 +175,7 @@ namespace GetScheduledTasksGQI
 		private List<GQICell> AddScriptCellsToRow(SchedulerTask task)
 		{
 			var additionalCells = new List<GQICell>();
-			var cellValue = string.Empty;
+			string cellValue = String.Empty;
 
 			foreach (var scriptRun in arguments.ScriptParameterInputs)
 			{
@@ -182,6 +186,7 @@ namespace GetScheduledTasksGQI
 						var script = action.ScriptInstance;
 						if (script == null || script.ParameterIdToValue == null || script.ParameterIdToValue.Count == 0 || !string.Equals(script.ScriptName, scriptRun.scriptName, StringComparison.OrdinalIgnoreCase))
 						{
+							cellValue = String.Empty;
 							continue;
 						}
 

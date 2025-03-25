@@ -18,7 +18,7 @@ namespace SchedulerTasksGetter
 		, IGQIInputArguments
 	{
 		private GQIDMS dms;
-		private GQIStringArgument nameFilterArgument;
+		private GQIStringArgument nameFilterArgument = new GQIStringArgument("Name Filter") { IsRequired = false, DefaultValue = ".*" };
 		private List<SchedulerTask> scheduledTasks = new List<SchedulerTask>();
 		private string nameFilter;
 
@@ -30,7 +30,6 @@ namespace SchedulerTasksGetter
 
 		public GQIArgument[] GetInputArguments()
 		{
-			nameFilterArgument = new GQIStringArgument("Name Filter") { IsRequired = false, DefaultValue = ".*" };
 			return new GQIArgument[] { nameFilterArgument };
 		}
 
@@ -57,10 +56,7 @@ namespace SchedulerTasksGetter
 		public GQIPage GetNextPage(GetNextPageInputArgs args)
 		{
 			var rows = ProcessRows();
-			return new GQIPage(rows.ToArray())
-			{
-				HasNextPage = false,
-			};
+			return new GQIPage(rows.ToArray());
 		}
 
 		private List<GQIRow> ProcessRows()
