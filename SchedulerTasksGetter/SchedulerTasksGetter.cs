@@ -10,11 +10,8 @@ namespace SchedulerTasksGetter
 
 	/// <summary> Represents a data source. See: https://aka.dataminer.services/gqi-external-data-source for a complete example. </summary>
 	[GQIMetaData(Name = "SLC - GQI - Scheduled - Tasks")]
-	public sealed class SchedulerTasksGetter : IGQIDataSource, IGQIOnPrepareFetch
-		, IGQIOnInit
-		, IGQIInputArguments
+	public sealed class SchedulerTasksGetter : IGQIDataSource, IGQIOnPrepareFetch, IGQIOnInit, IGQIInputArguments
 	{
-
 		private readonly GQIStringArgument nameFilterArgument = new GQIStringArgument("Name Filter") { IsRequired = false, DefaultValue = ".*" };
 		private readonly List<SchedulerTask> scheduledTasks = new List<SchedulerTask>();
 		private GQIDMS dms;

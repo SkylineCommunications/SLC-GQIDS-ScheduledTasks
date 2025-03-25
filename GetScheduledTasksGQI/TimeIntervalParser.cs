@@ -8,6 +8,7 @@
 		/// <summary>
 		/// Parses daily tasks based on repeat interval in minutes.
 		/// </summary>
+		/// <returns> Returns list of timings when the task will be executed.</returns>
 		public static List<DateTime> ParseDailyTask(string repeatInterval, DateTime rangeStart, DateTime rangeEnd, DateTime taskStart, DateTime taskEnd)
 		{
 			var occurrences = new List<DateTime>();
@@ -29,13 +30,17 @@
 			return occurrences;
 		}
 
-		public static List<DateTime> CalculateDayOccurrences(DateTime baseOccurrence,	DateTime rangeStart,DateTime overallUpperBound,	DateTime dailyCutoff, DateTime taskStart, int intervalMinutes, DateTime currentDay)
+		/// <summary>
+		/// Parses daily tasks based on repeat interval in minutes.
+		/// </summary>
+		/// <returns> Returns list of timings when the task will be executed in one day.</returns>
+		public static List<DateTime> CalculateDayOccurrences(DateTime baseOccurrence, DateTime rangeStart, DateTime overallUpperBound, DateTime dailyCutoff, DateTime taskStart, int intervalMinutes, DateTime currentDay)
 		{
 			var occurrences = new List<DateTime>();
 
 			if (intervalMinutes == 0)
 			{
-				if (baseOccurrence >= rangeStart &&	baseOccurrence <= overallUpperBound &&	baseOccurrence <= dailyCutoff)
+				if (baseOccurrence >= rangeStart && baseOccurrence <= overallUpperBound && baseOccurrence <= dailyCutoff)
 				{
 					occurrences.Add(baseOccurrence);
 				}
@@ -58,7 +63,11 @@
 			return occurrences;
 		}
 
-		public static List<DateTime> ParseWeeklyTask(string repeatInterval,	string repeatIntervalInMinutes,	DateTime rangeStart,DateTime rangeEnd,	DateTime taskStart,	DateTime taskEnd)
+		/// <summary>
+		/// Parses weekly tasks occurrences.
+		/// </summary>
+		/// <returns> Returns list of timings when the task will be executed.</returns>
+		public static List<DateTime> ParseWeeklyTask(string repeatInterval, string repeatIntervalInMinutes, DateTime rangeStart, DateTime rangeEnd, DateTime taskStart, DateTime taskEnd)
 		{
 			var occurrences = new List<DateTime>();
 			var allowedDays = GetValidDays(repeatInterval, taskStart);
@@ -70,7 +79,7 @@
 			{
 				if (allowedDays.Contains(current.DayOfWeek))
 				{
-					var baseOccurrence = new DateTime(current.Year, current.Month, current.Day,  taskStart.Hour, taskStart.Minute, taskStart.Second);
+					var baseOccurrence = new DateTime(current.Year, current.Month, current.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
 					var dailyCutoff = (taskEnd == DateTime.MaxValue) ? current.AddDays(1) : new DateTime(current.Year, current.Month, current.Day, taskEnd.Hour, taskEnd.Minute, taskEnd.Second);
 
 					occurrences.AddRange(CalculateDayOccurrences(baseOccurrence, rangeStart, overallUpperBound, dailyCutoff, taskStart, intervalMinutes, current));
@@ -82,6 +91,10 @@
 			return occurrences;
 		}
 
+		/// <summary>
+		/// Parses monthly tasks occurrences.
+		/// </summary>
+		/// <returns> Returns list of timings when the task will be executed.</returns>
 		public static List<DateTime> ParseMonthlyTask(string repeatInterval, string repeatIntervalInMinutes, DateTime rangeStart, DateTime rangeEnd, DateTime taskStart, DateTime taskEnd)
 		{
 			List<DateTime> occurrences = new List<DateTime>();

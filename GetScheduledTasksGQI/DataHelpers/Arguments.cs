@@ -21,7 +21,7 @@
 
 		public int Duration { get; private set; }
 
-		public List<ScriptRunData> ScriptParameterInputs { get; set; } = new List<ScriptRunData>();
+		public List<ScriptRunData> ScriptParameterInputs { get; } = new List<ScriptRunData>();
 
 		public void ProcessArguments(OnArgumentsProcessedInputArgs args)
 		{
@@ -31,11 +31,6 @@
 			Duration = args.GetArgumentValue(duration);
 			var scriptRunData = ParseScriptData(args.GetArgumentValue(scriptParameterInputs));
 			ScriptParameterInputs.AddRange(scriptRunData);
-		}
-
-		internal GQIArgument[] GetArguments()
-		{
-			return new GQIArgument[] { nameFilter, start, end, duration, scriptParameterInputs };
 		}
 
 		public List<ScriptRunData> ParseScriptData(string input)
@@ -64,5 +59,11 @@
 
 			return scriptDates;
 		}
+
+		internal GQIArgument[] GetArguments()
+		{
+			return new GQIArgument[] { nameFilter, start, end, duration, scriptParameterInputs };
+		}
+
 	}
 }
