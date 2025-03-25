@@ -63,16 +63,16 @@
 			var occurrences = new List<DateTime>();
 			var allowedDays = GetValidDays(repeatInterval, taskStart);
 			int intervalMinutes = GetRepeatIntervalInMinutes(repeatIntervalInMinutes);
-
 			var overallUpperBound = (taskEnd == DateTime.MaxValue) ? rangeEnd : taskEnd;
-
 			var current = rangeStart.Date;
+
 			while (current <= overallUpperBound.Date && current < rangeEnd)
 			{
 				if (allowedDays.Contains(current.DayOfWeek))
 				{
 					var baseOccurrence = new DateTime(current.Year, current.Month, current.Day,  taskStart.Hour, taskStart.Minute, taskStart.Second);
 					var dailyCutoff = (taskEnd == DateTime.MaxValue) ? current.AddDays(1) : new DateTime(current.Year, current.Month, current.Day, taskEnd.Hour, taskEnd.Minute, taskEnd.Second);
+
 					occurrences.AddRange(CalculateDayOccurrences(baseOccurrence, rangeStart, overallUpperBound, dailyCutoff, taskStart, intervalMinutes, current));
 				}
 
