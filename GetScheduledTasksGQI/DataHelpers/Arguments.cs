@@ -1,4 +1,4 @@
-﻿namespace GetScheduledTasksGQI.DataHelpers
+﻿namespace GetScheduledTasksGQI
 {
 	using System;
 	using System.Collections.Generic;
@@ -10,7 +10,7 @@
 		private readonly GQIStringArgument nameFilter = new GQIStringArgument("Name Filter") { IsRequired = false, DefaultValue = ".*" };
 		private readonly GQIDateTimeArgument start = new GQIDateTimeArgument("Start") { IsRequired = true };
 		private readonly GQIDateTimeArgument end = new GQIDateTimeArgument("End") { IsRequired = true };
-		private readonly GQIIntArgument duration = new GQIIntArgument("Duration(s)") { IsRequired = true };
+		private readonly GQIIntArgument duration = new GQIIntArgument("Duration (s)") { IsRequired = true };
 		private readonly GQIStringArgument scriptParameterInputs = new GQIStringArgument("Script Parameter Inputs") { IsRequired = false };
 
 		public string NameFilter { get; private set; }
@@ -42,7 +42,7 @@
 		{
 			var scriptDates = new List<ScriptRunData>();
 
-			string[] items = input.Split(new string[] {";",);
+			string[] items = input.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
 
 			foreach (var item in items)
 			{

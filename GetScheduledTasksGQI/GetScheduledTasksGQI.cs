@@ -4,9 +4,6 @@ namespace GetScheduledTasksGQI
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Text.RegularExpressions;
-
-	using global::GetScheduledTasksGQI.DataHelpers;
-
 	using Skyline.DataMiner.Analytics.GenericInterface;
 	using Skyline.DataMiner.Net.Helper;
 	using Skyline.DataMiner.Net.Messages;
@@ -39,9 +36,6 @@ namespace GetScheduledTasksGQI
 		public OnArgumentsProcessedOutputArgs OnArgumentsProcessed(OnArgumentsProcessedInputArgs args)
 		{
 			arguments.ProcessArguments(args);
-			var tasks = GetTasks(task => Regex.IsMatch(task.TaskName, arguments.NameFilter, RegexOptions.IgnoreCase) && task.Enabled);
-			scheduledTasks.AddRange(tasks);
-
 			return new OnArgumentsProcessedOutputArgs();
 		}
 
@@ -64,9 +58,12 @@ namespace GetScheduledTasksGQI
 
 			return columns.ToArray();
 		}
+
 		public OnPrepareFetchOutputArgs OnPrepareFetch(OnPrepareFetchInputArgs args)
 		{
-			throw new NotImplementedException();
+			var tasks = GetTasks(task => Regex.IsMatch(task.TaskName, arguments.NameFilter, RegexOptions.IgnoreCase) && task.Enabled);
+			scheduledTasks.AddRange(tasks);
+			return new OnPrepareFetchOutputArgs();
 		}
 
 		public GQIPage GetNextPage(GetNextPageInputArgs args)

@@ -1,4 +1,4 @@
-﻿namespace GetScheduledTasksGQI.DataHelpers
+﻿namespace GetScheduledTasksGQI
 {
 	public class ScriptRunData
 	{

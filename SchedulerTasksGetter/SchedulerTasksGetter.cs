@@ -8,18 +8,16 @@ namespace SchedulerTasksGetter
 	using Skyline.DataMiner.Analytics.GenericInterface;
 	using Skyline.DataMiner.Net.Messages;
 
-	/// <summary>
-	/// Represents a data source.
-	/// See: https://aka.dataminer.services/gqi-external-data-source for a complete example.
-	/// </summary>
+	/// <summary> Represents a data source. See: https://aka.dataminer.services/gqi-external-data-source for a complete example. </summary>
 	[GQIMetaData(Name = "SLC - GQI - Scheduled - Tasks")]
-	public sealed class SchedulerTasksGetter : IGQIDataSource
+	public sealed class SchedulerTasksGetter : IGQIDataSource, IGQIOnPrepareFetch
 		, IGQIOnInit
 		, IGQIInputArguments
 	{
+
+		private readonly GQIStringArgument nameFilterArgument = new GQIStringArgument("Name Filter") { IsRequired = false, DefaultValue = ".*" };
+		private readonly List<SchedulerTask> scheduledTasks = new List<SchedulerTask>();
 		private GQIDMS dms;
-		private GQIStringArgument nameFilterArgument = new GQIStringArgument("Name Filter") { IsRequired = false, DefaultValue = ".*" };
-		private List<SchedulerTask> scheduledTasks = new List<SchedulerTask>();
 		private string nameFilter;
 
 		public OnInitOutputArgs OnInit(OnInitInputArgs args)
@@ -36,9 +34,14 @@ namespace SchedulerTasksGetter
 		public OnArgumentsProcessedOutputArgs OnArgumentsProcessed(OnArgumentsProcessedInputArgs args)
 		{
 			nameFilter = args.GetArgumentValue(nameFilterArgument);
+			return new OnArgumentsProcessedOutputArgs();
+		}
+
+		public OnPrepareFetchOutputArgs OnPrepareFetch(OnPrepareFetchInputArgs args)
+		{
 			var tasks = GetTasks(task => Regex.IsMatch(task.TaskName, nameFilter, RegexOptions.IgnoreCase));
 			scheduledTasks.AddRange(tasks);
-			return new OnArgumentsProcessedOutputArgs();
+			return new OnPrepareFetchOutputArgs();
 		}
 
 		public GQIColumn[] GetColumns()
