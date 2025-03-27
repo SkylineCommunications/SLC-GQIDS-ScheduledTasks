@@ -23,7 +23,7 @@
 				// - If taskEnd is MaxValue then cutoff is the start of the next day.
 				// - Otherwise, the cutoff is the current day with taskEnd's time.
 				var dailyCutoff = (taskEnd == DateTime.MaxValue) ? currentDay.AddDays(1) : new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskEnd.Hour, taskEnd.Minute, taskEnd.Second);
-				occurrences.AddRange(CalculateDayOccurrences(baseOccurrence, rangeStart, overallUpperBound, dailyCutoff, taskStart, intervalMinutes, currentDay));
+				occurrences.AddRange(CalculateDayOccurrences(baseOccurrence, rangeStart, rangeEnd, overallUpperBound, dailyCutoff, taskStart, intervalMinutes, currentDay));
 				currentDay = currentDay.AddDays(1);
 			}
 
@@ -34,7 +34,7 @@
 		/// Parses daily tasks based on repeat interval in minutes.
 		/// </summary>
 		/// <returns> Returns list of timings when the task will be executed in one day.</returns>
-		public static List<DateTime> CalculateDayOccurrences(DateTime baseOccurrence, DateTime rangeStart, DateTime overallUpperBound, DateTime dailyCutoff, DateTime taskStart, int intervalMinutes, DateTime currentDay)
+		public static List<DateTime> CalculateDayOccurrences(DateTime baseOccurrence, DateTime rangeStart, DateTime rangeEnd, DateTime overallUpperBound, DateTime dailyCutoff, DateTime taskStart, int intervalMinutes, DateTime currentDay)
 		{
 			var occurrences = new List<DateTime>();
 
@@ -49,7 +49,7 @@
 			{
 				// With minute interval: start at baseOccurrence and add until reaching the daily cutoff.
 				var occ = baseOccurrence;
-				while (occ < dailyCutoff && occ <= overallUpperBound)
+				while (occ < dailyCutoff && occ <= overallUpperBound && occ<= rangeEnd)
 				{
 					if (occ >= rangeStart && occ >= taskStart)
 					{
@@ -82,7 +82,7 @@
 					var baseOccurrence = new DateTime(current.Year, current.Month, current.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
 					var dailyCutoff = (taskEnd == DateTime.MaxValue) ? current.AddDays(1) : new DateTime(current.Year, current.Month, current.Day, taskEnd.Hour, taskEnd.Minute, taskEnd.Second);
 
-					occurrences.AddRange(CalculateDayOccurrences(baseOccurrence, rangeStart, overallUpperBound, dailyCutoff, taskStart, intervalMinutes, current));
+					occurrences.AddRange(CalculateDayOccurrences(baseOccurrence, rangeStart, rangeEnd, overallUpperBound, dailyCutoff, taskStart, intervalMinutes, current));
 				}
 
 				current = current.AddDays(1);
