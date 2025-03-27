@@ -39,7 +39,7 @@ title: Get Scheduled Tasks GQI DS
 # [Optional]
 # General information about the Catalog item.
 #   Max length: 100,000 characters
-short_description: This ad hoc data source provides a list of scheduled tasks executed within a time frame defined by the user. Tasks can be filtered using a name regex (defaulting to .*), and you can also specify each task's duration in seconds, which then reflects the execution time accordingly.
+short_description: This ad hoc data source provides a list of scheduled tasks executed within a time frame defined by the user. Tasks can be filtered using a name regex default and you can also specify each task's duration in seconds, which then reflects the execution time accordingly.
 
 # [Optional]
 # A valid URL that points to the source code.
