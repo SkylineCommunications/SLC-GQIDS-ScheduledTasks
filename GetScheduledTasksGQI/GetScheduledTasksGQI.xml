@@ -21,7 +21,6 @@
 			<Value><![CDATA[[Project:GetScheduledTasksGQI]]]></Value>
 			<Param type="preCompile">true</Param>
 			<Param type="libraryName">GetScheduledTasksGQI</Param>
-			
 		</Exe>
 	</Script>
 </DMSScript>
