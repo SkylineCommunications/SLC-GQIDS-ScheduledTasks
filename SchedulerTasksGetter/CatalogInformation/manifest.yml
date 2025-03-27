@@ -26,7 +26,7 @@ type: Ad Hoc Data Source
 # If the ID is filled in but does not exist yet, a new Catalog item will be registered with this ID.
 # If the ID is filled in but does exist, properties of the item will be overwritten.
 #   Must be a valid GUID.
-id: 05816d50-5255-4a82-bc42-6f2ed0ed5f66
+id: de03fbc1-6856-47fd-80bb-6eeb3050233e
 
 # [Required]
 # The human-friendly name of the Catalog item.
@@ -34,12 +34,12 @@ id: 05816d50-5255-4a82-bc42-6f2ed0ed5f66
 #   Max length: 100 characters.
 #   Cannot contain newlines.
 #   Cannot contain leading or trailing whitespace characters.
-title: Get Scheduled Tasks GQI DS
+title: Scheduler Tasks Getter
 
 # [Optional]
 # General information about the Catalog item.
 #   Max length: 100,000 characters
-short_description: This ad hoc data source provides a list of scheduled tasks executed within a time frame defined by the user. Tasks can be filtered using a name regex (defaulting to .*), and you can also specify each task's duration in seconds, which then reflects the execution time accordingly.
+short_description: This is a ad hoc data source that allows getting list of scheduled task from DMA. Tasks are filtered based on name.
 
 # [Optional]
 # A valid URL that points to the source code.
@@ -59,7 +59,7 @@ documentation_url: https://github.com/SkylineCommunications/SLC-GQIDS-ScheduledT
 #   The name is required; max 256 characters.
 #   The email and URL are optional, and should be in valid email/URL formats.
 owners:
-  - name: 'Skyline Communications'
+  - name: 'SkylineCommunications'
   
 # [Optional]
 # Tags that allow you to categorize your Catalog items.
@@ -72,3 +72,5 @@ tags:
   - GQIDS
   - GQI
   - Scheduler
+
+	 

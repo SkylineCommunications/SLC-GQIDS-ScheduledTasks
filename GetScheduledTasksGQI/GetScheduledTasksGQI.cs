@@ -4,7 +4,6 @@ namespace GetScheduledTasksGQI
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Text.RegularExpressions;
-
 	using Skyline.DataMiner.Analytics.GenericInterface;
 	using Skyline.DataMiner.Net.Helper;
 	using Skyline.DataMiner.Net.Messages;
@@ -16,11 +15,11 @@ namespace GetScheduledTasksGQI
 	/// See: https://aka.dataminer.services/gqi-external-data-source for a complete example.
 	/// </summary>
 	[GQIMetaData(Name = "Get Scheduled Tasks")]
-	public class GetScheduledTasksGQI : IGQIDataSource, IGQIInputArguments, IGQIOnInit
+	public class GetScheduledTasksGQI : IGQIDataSource, IGQIInputArguments, IGQIOnInit, IGQIOnPrepareFetch
 	{
 		private readonly Arguments arguments = new Arguments();
-		private List<GQIRow> rows = new List<GQIRow>();
-		private List<SchedulerTask> scheduledTasks = new List<SchedulerTask>();
+		private readonly List<GQIRow> rows = new List<GQIRow>();
+		private readonly List<SchedulerTask> scheduledTasks = new List<SchedulerTask>();
 		private GQIDMS dms;
 
 		public OnInitOutputArgs OnInit(OnInitInputArgs args)
@@ -37,10 +36,6 @@ namespace GetScheduledTasksGQI
 		public OnArgumentsProcessedOutputArgs OnArgumentsProcessed(OnArgumentsProcessedInputArgs args)
 		{
 			arguments.ProcessArguments(args);
-			var tasks = GetTasks(task => Regex.IsMatch(task.TaskName, arguments.NameFilter, RegexOptions.IgnoreCase) && task.Enabled && (task.EndTime == DateTime.MinValue || (task.EndTime >= arguments.Start && task.EndTime <= arguments.End)));
-
-			scheduledTasks.AddRange(tasks);
-
 			return new OnArgumentsProcessedOutputArgs();
 		}
 
@@ -55,7 +50,20 @@ namespace GetScheduledTasksGQI
 				new GQIStringColumn("Type"),
 				new GQIStringColumn("DataMiner"),
 			};
+
+			foreach (var scriptData in arguments.ScriptParameterInputs)
+			{
+				columns.Add(new GQIStringColumn($"{scriptData.scriptName}.{scriptData.scriptParameterID}"));
+			}
+
 			return columns.ToArray();
+		}
+
+		public OnPrepareFetchOutputArgs OnPrepareFetch(OnPrepareFetchInputArgs args)
+		{
+			var tasks = GetTasks(task => Regex.IsMatch(task.TaskName, arguments.NameFilter, RegexOptions.IgnoreCase) && task.Enabled);
+			scheduledTasks.AddRange(tasks);
+			return new OnPrepareFetchOutputArgs();
 		}
 
 		public GQIPage GetNextPage(GetNextPageInputArgs args)
@@ -96,37 +104,37 @@ namespace GetScheduledTasksGQI
 
 		private void ProcessScheduledTasks()
 		{
-			DateTime rangeStart =arguments.Start;
-			DateTime rangeEnd = arguments.End;
+			var rangeStart = arguments.Start;
+			var rangeEnd = arguments.End;
 
 			foreach (var task in scheduledTasks)
 			{
 				// DM returns scheduler Task info in local Timestamps
-				DateTime taskStart = DateTime.SpecifyKind(task.StartTime, DateTimeKind.Local).ToUniversalTime();
-				DateTime taskEnd = task.EndTime == DateTime.MinValue ? DateTime.MaxValue : DateTime.SpecifyKind(task.EndTime, DateTimeKind.Local).ToUniversalTime();
+				var taskStart = DateTime.SpecifyKind(task.StartTime, DateTimeKind.Local);
+				var taskEnd = task.EndTime == DateTime.MinValue ? DateTime.MaxValue : DateTime.SpecifyKind(task.EndTime, DateTimeKind.Local);
 
 				List<DateTime> occurrences = new List<DateTime>();
-
 				if (!string.IsNullOrEmpty(task.RepeatInterval))
 				{
 					switch (task.RepeatType)
 					{
 						case SchedulerRepeatType.Monthly:
-							occurrences = TimeIntervalParser.ParseMonthlyTask(task.RepeatInterval, task.RepeatIntervalInMinutes, rangeStart, rangeEnd, taskStart);
+							occurrences = TimeIntervalParser.ParseMonthlyTask(task.RepeatInterval, task.RepeatIntervalInMinutes, rangeStart, rangeEnd, taskStart, taskEnd);
 							break;
 
 						case SchedulerRepeatType.Weekly:
-							occurrences = TimeIntervalParser.ParseWeeklyTask(task.RepeatInterval, task.RepeatIntervalInMinutes, rangeStart, rangeEnd, taskStart);
+							occurrences = TimeIntervalParser.ParseWeeklyTask(task.RepeatInterval, task.RepeatIntervalInMinutes, rangeStart, rangeEnd, taskStart, taskEnd);
 							break;
 
 						case SchedulerRepeatType.Daily:
-							occurrences = TimeIntervalParser.ParseDailyTask(task.RepeatInterval, task.RepeatIntervalInMinutes, rangeStart, rangeEnd, taskStart);
+							occurrences = TimeIntervalParser.ParseDailyTask(task.RepeatInterval, rangeStart, rangeEnd, taskStart, taskEnd);
 							break;
 						case SchedulerRepeatType.Once:
 							if (taskStart >= rangeStart && taskStart <= rangeEnd)
 							{
 								occurrences.Add(taskStart);
 							}
+
 							break;
 						default:
 							// do nothing
@@ -145,17 +153,54 @@ namespace GetScheduledTasksGQI
 				}
 			}
 		}
+
 		private void AddRow(SchedulerTask task, DateTime occurrenceTime)
 		{
-			rows.Add(new GQIRow(new[]
+			var cells = new List<GQICell>
 			{
-				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime ,DateTimeKind.Utc) },
-				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime.AddSeconds(arguments.Duration) ,DateTimeKind.Utc) },
+				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime, DateTimeKind.Utc) },
+				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime.AddSeconds(arguments.Duration), DateTimeKind.Utc)},
 				new GQICell { Value = task.TaskName },
 				new GQICell { Value = task.Description },
 				new GQICell { Value = task.RepeatType.ToString() },
 				new GQICell { Value = task.HandlingDMA.ToString() },
-			}));
+			};
+			cells.AddRange(AddScriptCellsToRow(task));
+			rows.Add(new GQIRow(cells.ToArray()));
+		}
+
+		private List<GQICell> AddScriptCellsToRow(SchedulerTask task)
+		{
+			var additionalCells = new List<GQICell>();
+			string cellValue = String.Empty;
+
+			foreach (var scriptRun in arguments.ScriptParameterInputs)
+			{
+				if (task.Actions != null)
+				{
+					foreach (var action in task.Actions)
+					{
+						cellValue = String.Empty;
+						var script = action.ScriptInstance;
+						if (script == null || script.ParameterIdToValue == null || script.ParameterIdToValue.Count == 0 || !string.Equals(script.ScriptName, scriptRun.scriptName, StringComparison.OrdinalIgnoreCase))
+						{
+							continue;
+						}
+
+						var automationInfo = script.ParameterIdToValue.OfType<AutomationScriptInstanceInfo>().FirstOrDefault(info => info.Key == scriptRun.scriptParameterID);
+
+						if (automationInfo != null)
+						{
+							cellValue = automationInfo.Value;
+							break;
+						}
+					}
+				}
+
+				additionalCells.Add(new GQICell { Value = cellValue });
+			}
+
+			return additionalCells;
 		}
 	}
 }
