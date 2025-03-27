@@ -17,7 +17,7 @@
 #   - User-Defined API: If the Catalog item is a DataMiner Automation script designed as a user-defined API.
 #   - Visual Overview: If the Catalog item is a Microsoft Visio design.
 
-type: 'Ad Hoc Data Source'
+type: Ad Hoc Data Source
 
 # [Required] 
 # The ID of the Catalog item.
@@ -27,7 +27,7 @@ type: 'Ad Hoc Data Source'
 # If the ID is filled in but does not exist yet, a new Catalog item will be registered with this ID.
 # If the ID is filled in but does exist, properties of the item will be overwritten.
 #   Must be a valid GUID.
-id: '05816d50-5255-4a82-bc42-6f2ed0ed5f66'
+id: 05816d50-5255-4a82-bc42-6f2ed0ed5f66
 
 # [Required] 
 # The human-friendly name of the Catalog item. 
@@ -35,26 +35,26 @@ id: '05816d50-5255-4a82-bc42-6f2ed0ed5f66'
 #   Max length: 100 characters.
 #   Cannot contain newlines.
 #   Cannot contain leading or trailing whitespace characters.
-title: 'Get Scheduled Tasks GQI DS'
+title: Get Scheduled Tasks GQI DS
 
 # [Optional]
 # General information about the Catalog item.
 #   Max length: 100,000 characters
 # Currently not shown in the Catalog UI but will be supported in the near future.
-short_description: 'This ad hoc data source provides a list of scheduled tasks executed within a time frame defined by the user. Tasks can be filtered using a name regex default and you can also specify each task's duration in seconds, which then reflects the execution time accordingly.'
+short_description: This ad hoc data source provides a list of scheduled tasks executed within a time frame defined by the user. Tasks can be filtered using a name regex default and you can also specify each task's duration in seconds, which then reflects the execution time accordingly.
 
 # [Optional]
 # A valid URL that points to the source code.
 #   A valid URL
 #   Max length: 2048 characters
-source_code_url: 'https://github.com/SkylineCommunications/SLC-GQIDS-ScheduledTasks'
+source_code_url: https://github.com/SkylineCommunications/SLC-GQIDS-ScheduledTasks
 
 # [Optional]
 # A valid URL that points to documentation.
 #   A valid URL
 #   Max length: 2048 characters
 # Currently not shown in the Catalog UI but will be supported in the near future.
-documentation_url: 'https://github.com/SkylineCommunications/SLC-GQIDS-ScheduledTasks'
+documentation_url: https://github.com/SkylineCommunications/SLC-GQIDS-ScheduledTasks
 
 # [Optional]
 # People who are responsible for this Catalog item. Might be developers, but this is not required.
@@ -62,7 +62,7 @@ documentation_url: 'https://github.com/SkylineCommunications/SLC-GQIDS-Scheduled
 #   The name is required; max 256 characters.
 #   The email and url are optional, and should be in valid email/URL formats.
 owners:
-  - name: 'Skyline Communications'
+  - name: Skyline Communications
 
 # [Optional]
 # Tags that allow you to categorize your Catalog items.
@@ -71,6 +71,6 @@ owners:
 #   Cannot contain newlines.
 #   Cannot contain leading or trailing whitespace characters.
 tags:
-  - 'GQIDS'
-  - 'GQI'
-  - 'Scheduler'
+  - GQIDS
+  - GQI
+  - Scheduler
