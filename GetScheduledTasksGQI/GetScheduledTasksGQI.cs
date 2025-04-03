@@ -14,7 +14,7 @@ namespace GetScheduledTasksGQI
 	/// Represents a data source.
 	/// See: https://aka.dataminer.services/gqi-external-data-source for a complete example.
 	/// </summary>
-	[GQIMetaData(Name = "Get Scheduled Tasks")]
+	[GQIMetaData(Name = "SLC - GQI - Scheduled - Tasks - Occurrences")]
 	public class GetScheduledTasksGQI : IGQIDataSource, IGQIInputArguments, IGQIOnInit, IGQIOnPrepareFetch
 	{
 		private readonly Arguments arguments = new Arguments();
