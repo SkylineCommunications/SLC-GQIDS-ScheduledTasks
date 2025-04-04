@@ -27,7 +27,6 @@ While implementing the **SLC - GQI - Scheduled - Tasks** user should specify fol
 
 As a result the GQI will retrieve name, description and type of the task as well as ID of the agent on which the task was executed.
 
-
 While implementing the **SLC - GQI - Scheduled - Tasks - Occurrences**  user should specify following input parameters:
 - **Name Filter:** A regex pattern to match the task name. (Optional; defaults to `.*` if not specified.)
 - **Start:** The beginning of the time frame during which task occurrences are recorded.
