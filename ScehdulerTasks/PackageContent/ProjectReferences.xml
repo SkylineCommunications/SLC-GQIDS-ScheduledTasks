@@ -2,6 +2,4 @@
 	<!-- Default include all -->
 	<ProjectReference Include="..\*\*.csproj" />
 	<ProjectReference Include="..\SchedulerTasksGetter\SchedulerTasksGetter.csproj" />
-
-	
 </ProjectReferences>
