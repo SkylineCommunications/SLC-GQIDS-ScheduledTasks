@@ -3,7 +3,7 @@ Package is consisted of two ad hoc data sources that are retrieving information 
 The **SLC - GQI - Scheduled - Tasks** provides list of scheduled tasks from Scheduler module of DataMiner. While **SLC - GQI - Scheduled - Tasks - Occurrences** provides the list of scheduled task occurrences based on user's input in specific period of time. In this way the customizable overview of tasks is provided.
 
 ## Key Features
-The data sources offer a flexibl framework for retrieving data about scheduled tasks by incorporating several features:
+The data sources offer a flexible framework for retrieving data about scheduled tasks by incorporating several features:
 
 - **Regex Filtering:** Users can specify a **regex** pattern to match task names, allowing for highly customizable filtering. This feature is particularly useful when managing large numbers of tasks, as it helps narrow down the data to only those tasks that meet specific naming criteria.
 - **Time Frame Specification:** With the ability to define a **time frame**, users can control the period over which task occurrences are displayed.
