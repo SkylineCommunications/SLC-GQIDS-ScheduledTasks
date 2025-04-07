@@ -35,7 +35,7 @@ id: 05816d50-5255-4a82-bc42-6f2ed0ed5f66
 #   Max length: 100 characters.
 #   Cannot contain newlines.
 #   Cannot contain leading or trailing whitespace characters.
-title: Get Scheduled Tasks GQI DS
+title: Get Scheduled Tasks
 
 # [Optional]
 # General information about the Catalog item.
@@ -74,3 +74,4 @@ tags:
   - GQIDS
   - GQI
   - Scheduler
+  - Tasks
