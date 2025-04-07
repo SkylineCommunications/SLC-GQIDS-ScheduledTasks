@@ -20,25 +20,27 @@ The versatility of the package lends itself to a broad range of applications, in
 
 ## Configuration 
 
-Upon deploying the package the user will find two ad hoc data sources **SLC - GQI - Scheduled - Tasks**  and  **SLC - GQI - Scheduled - Tasks - Occurrences** made to be used as GQI. More about GQI can be found in DataMiner Docs, see : [Generic Query Interface](https://docs.dataminer.services/user-guide/Advanced_Modules/Dashboards_and_Low_Code_Apps/GQI/About_GQI.html).
+After deploying the package the user will find two ad hoc data sources **SLC - GQI - Scheduled - Tasks**  and  **SLC - GQI - Scheduled - Tasks - Occurrences** made to be used as GQI. More about GQI can be found in DataMiner Docs, see : [Generic Query Interface](https://docs.dataminer.services/user-guide/Advanced_Modules/Dashboards_and_Low_Code_Apps/GQI/About_GQI.html).
 
 While implementing the **SLC - GQI - Scheduled - Tasks** user should specify following input parameters:
-- Name Filter - regex pattern used to match task name (optional - by default will use .*)
+- **Name Filter:** - regular expression (regex) pattern used to match task name (optional - by default will use `.*`)
 
-![SchedulerOccurrences](./Images/Scheduler_Tasks.png)
+
+![SchedulerTasks](./Images/Scheduler_Tasks.png)
 
 As a result the GQI will retrieve name, description and type of the task as well as ID of the agent on which the task was executed.
 
 While implementing the **SLC - GQI - Scheduled - Tasks - Occurrences**  user should specify following input parameters:
-- **Name Filter:** A regex pattern to match the task name. (Optional; defaults to `.*` if not specified.)
-- **Start:** The beginning of the time frame during which task occurrences are recorded.
-- **End:** The end of the time frame during which task occurrences are recorded.
-- **Duration (s):** The duration value used to represent the length of each task occurrence.
+- **Name Filter:** Regular expression (regex) to match the task name. (Optional; defaults to `.*` if not specified.)
+- **Start:** The beginning of the time frame during which task occurrences are recorded. (Choose using the DateTimePicker.)
+- **End:** The end of the time frame during which task occurrences are recorded. (Choose using the DateTimePicker.)
+- **Duration (s):** A numeric value representing the duration of each task occurrence, expressed in seconds.
 - **Script Parameter Inputs:** Input values should be provided in the format `[ScriptName.InputParameterId]`. (Optional; by default, no values are retrieved.) Note that for tasks that do not include the specified script, an empty value will be returned.
+
 
 ![SchedulerOccurrences](./Images/Scheduler_Occurrences_SettingUp.png)
 
-As a result the GQI will retrieve start and end time, name, description and type of the task as well as ID of the agent on which the task was executed. If specified values of input parameters of specific executed scripts will be retrieved as well.
+As a result the GQI will retrieve start and end time, name, description and type of the task as well as ID of the agent on which the task was executed. If specified, values of input parameters of specific executed scripts will be retrieved as well.
 
 > [!IMPORTANT]
 > Duration of tasks does not reflect the actual time that task took to execute, it only enables task occurrence to be visualized in the specified number of seconds.
