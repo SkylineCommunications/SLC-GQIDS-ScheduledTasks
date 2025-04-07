@@ -1,54 +1,58 @@
 ## About
-Package is consisted of two ad hoc data sources that are retrieving information about scheduled tasks in DataMiner System. The ad hoc data sources enable user to visualize data from Scheduler module in a custom way by implementing these ad hoc data sources in LCA and/or dashboards.
-The **SLC - GQI - Scheduled - Tasks** provides list of scheduled tasks from Scheduler module of DataMiner. While **SLC - GQI - Scheduled - Tasks - Occurrences** provides the list of scheduled task occurrences based on user's input in specific period of time. In this way the customizable overview of tasks is provided.
+
+This package consists of two ad hoc data sources, **SLC - GQI - Scheduled - Tasks** and **SLC - GQI - Scheduled - Tasks - Occurrences**, that retrieve information about scheduled tasks in a DataMiner System. By implementing these ad hoc data sources in low-code apps and/or dashboards, you can visualize data from the Scheduler module in a custom way.
+
+**SLC - GQI - Scheduled - Tasks** provides a list of scheduled tasks from the DataMiner Scheduler module, while **SLC - GQI - Scheduled - Tasks - Occurrences** provides a list of the scheduled task occurrences based on the user's input in a specific period of time. This way, a customizable overview of tasks is provided.
 
 ## Key Features
 
 The data sources offer a flexible framework for retrieving data about scheduled tasks by incorporating several features:
 
-- **Regex Filtering:** Users can specify a **regex** pattern to match task names, allowing for highly customizable filtering. This feature is particularly useful when managing large numbers of tasks, as it helps narrow down the data to only those tasks that meet specific naming criteria.
-- **Time Frame Specification:** With the ability to define a **time frame**, users can control the period over which task occurrences are displayed.
-- **Duration Settings:** The option to set the **duration** of displayed tasks enhances timeline visualizations. 
-- **Custom Integration:** These features support seamless integration into custom dashboards and LCA modules, allowing users to create tailored visualizations that align with specific operational needs.
-- **Input Data Overview** There is possibility to see specified input data of scripts executed within the tasks.
+- **Regex filtering**: Users can specify a **regex** pattern to match task names, allowing for highly customizable filtering. This feature is particularly useful when managing large numbers of tasks, as it helps narrow down the data to only those tasks that meet specific naming criteria.
+- **Time frame specification**: With the ability to define a **time frame**, users can control the period over which task occurrences are displayed.
+- **Duration settings**: The option to set the **duration** of displayed tasks enhances timeline visualizations. 
+- **Custom integration**: These features support seamless integration into custom dashboards and low-code apps, allowing users to create tailored visualizations that align with specific operational needs.
+- **Input data overview**: Users can view the specified input data of scripts executed within the tasks.
 
 ## Use Cases 
 
 The versatility of the package lends itself to a broad range of applications, including but not limited to:
-- **Monitoring** The ability to retrieve scheduled tasks across various agents makes it easier to monitor. Users could use the data to set up dashboards that visualize task execution.
-- **Troubleshooting and Diagnostics:** When issues arise, the ability to drill down into specific task occurrences using time frames and regex filtering can help pinpoint the root cause of performance issues or scheduling conflicts.
+
+- **Monitoring**: The ability to retrieve scheduled tasks across various DataMiner Agents makes it easier to monitor these. You can for instance use the data to set up dashboards that visualize task execution.
+- **Troubleshooting and diagnostics**: When issues arise, the ability to drill down to specific task occurrences using time frames and regex filtering can help pinpoint the root cause of performance issues or scheduling conflicts.
 
 ## Configuration 
 
-After deploying the package the user will find two ad hoc data sources **SLC - GQI - Scheduled - Tasks**  and  **SLC - GQI - Scheduled - Tasks - Occurrences** made to be used as GQI. More about GQI can be found in DataMiner Docs, see : [Generic Query Interface](https://docs.dataminer.services/user-guide/Advanced_Modules/Dashboards_and_Low_Code_Apps/GQI/About_GQI.html).
+After the package has been deployed, two ad hoc data sources, **SLC - GQI - Scheduled - Tasks**  and  **SLC - GQI - Scheduled - Tasks - Occurrences**, will be available for use in GQI queries. For more information about GQI, refer to [Generic Query Interface](https://aka.dataminer.services/About_GQI).
 
-While implementing the **SLC - GQI - Scheduled - Tasks** user should specify following input parameters:
-- **Name Filter:** - regular expression (regex) pattern used to match task name (optional - by default will use `.*`)
+### SLC - GQI - Scheduled - Tasks
 
+While implementing **SLC - GQI - Scheduled - Tasks**, you can optionally specify the **Name Filter** input parameter. This regular expression (regex) pattern will be used to match the task name. If no name filter is specified, `.*` is used instead.
 
 ![SchedulerTasks](./Images/Scheduler_Tasks.png)
 
-As a result the GQI will retrieve name, description and type of the task as well as ID of the agent on which the task was executed.
+As a result, the GQI will retrieve the name, description, and type of the task, as well as the ID of the Agent on which the task was executed.
 
-While implementing the **SLC - GQI - Scheduled - Tasks - Occurrences**  user should specify following input parameters:
-- **Name Filter:** Regular expression (regex) to match the task name. (Optional; defaults to `.*` if not specified.)
-- **Start:** The beginning of the time frame during which task occurrences are recorded. (Choose using the DateTimePicker.)
-- **End:** The end of the time frame during which task occurrences are recorded. (Choose using the DateTimePicker.)
-- **Duration (s):** A numeric value representing the duration of each task occurrence, expressed in seconds.
-- **Script Parameter Inputs:** Input values should be provided in the format `[ScriptName.InputParameterId]`. (Optional; by default, no values are retrieved.) Note that for tasks that do not include the specified script, an empty value will be returned.
+### SLC - GQI - Scheduled - Tasks - Occurrences
 
+While implementing **SLC - GQI - Scheduled - Tasks - Occurrences**, you should specify the following input parameters:
+
+- **Name Filter**: Optional. Regular expression (regex) to match the task name. If no name filter is specified, `.*` is used instead.
+- **Start**: The beginning of the time frame during which task occurrences should be recorded.
+- **End**: The end of the time frame during which task occurrences are recorded.
+- **Duration (s)**: A numeric value representing the duration of each task occurrence, expressed in seconds.
+- **Script Parameter Inputs**: Optional. Input values in the format `[ScriptName.InputParameterId]`. If nothing is specified for this parameter, no values are retrieved. Note that for tasks that do not include the specified script, an empty value will be returned.
 
 ![SchedulerOccurrences](./Images/Scheduler_Occurrences_SettingUp.png)
 
-As a result the GQI will retrieve start and end time, name, description and type of the task as well as ID of the agent on which the task was executed. If specified, values of input parameters of specific executed scripts will be retrieved as well.
+As a result, the GQI will retrieve the start and end time, name, description, and type of the task as well as the ID of the Agent on which the task was executed. If specified, values of input parameters of specific executed scripts will be retrieved as well.
 
 > [!IMPORTANT]
-> Duration of tasks does not reflect the actual time that task took to execute, it only enables task occurrence to be visualized in the specified number of seconds.
+> The duration of tasks does not reflect the actual time that tasks took to execute. This only enables the task occurrence to be visualized in the specified number of seconds.
 
 > [!NOTE]
 > Only active scheduled tasks will be retrieved.
 
 ## Prerequisites
 
-The package usage requires:
-- Minimum DataMiner version 10.4.0-14003
+To use this package, make sure **DataMiner version 10.4.0-14003** or higher is installed.
