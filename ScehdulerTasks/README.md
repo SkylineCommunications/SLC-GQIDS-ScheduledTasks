@@ -3,6 +3,7 @@ Package is consisted of two ad hoc data sources that are retrieving information 
 The **SLC - GQI - Scheduled - Tasks** provides list of scheduled tasks from Scheduler module of DataMiner. While **SLC - GQI - Scheduled - Tasks - Occurrences** provides the list of scheduled task occurrences based on user's input in specific period of time. In this way the customizable overview of tasks is provided.
 
 ## Key Features
+
 The data sources offer a flexible framework for retrieving data about scheduled tasks by incorporating several features:
 
 - **Regex Filtering:** Users can specify a **regex** pattern to match task names, allowing for highly customizable filtering. This feature is particularly useful when managing large numbers of tasks, as it helps narrow down the data to only those tasks that meet specific naming criteria.
@@ -14,7 +15,6 @@ The data sources offer a flexible framework for retrieving data about scheduled 
 ## Use Cases 
 
 The versatility of the package lends itself to a broad range of applications, including but not limited to:
-
 - **Monitoring** The ability to retrieve scheduled tasks across various agents makes it easier to monitor. Users could use the data to set up dashboards that visualize task execution.
 - **Troubleshooting and Diagnostics:** When issues arise, the ability to drill down into specific task occurrences using time frames and regex filtering can help pinpoint the root cause of performance issues or scheduling conflicts.
 
@@ -25,6 +25,8 @@ Upon deploying the package the user will find two ad hoc data sources **SLC - GQ
 While implementing the **SLC - GQI - Scheduled - Tasks** user should specify following input parameters:
 - Name Filter - regex pattern used to match task name (optional - by default will use .*)
 
+![SchedulerOccurrences](./Images/Scheduler_Tasks.png)
+
 As a result the GQI will retrieve name, description and type of the task as well as ID of the agent on which the task was executed.
 
 While implementing the **SLC - GQI - Scheduled - Tasks - Occurrences**  user should specify following input parameters:
@@ -33,6 +35,8 @@ While implementing the **SLC - GQI - Scheduled - Tasks - Occurrences**  user sho
 - **End:** The end of the time frame during which task occurrences are recorded.
 - **Duration (s):** The duration value used to represent the length of each task occurrence.
 - **Script Parameter Inputs:** Input values should be provided in the format `[ScriptName.InputParameterId]`. (Optional; by default, no values are retrieved.) Note that for tasks that do not include the specified script, an empty value will be returned.
+
+![SchedulerOccurrences](./Images/Scheduler_Occurrences_SettingUp.png)
 
 As a result the GQI will retrieve start and end time, name, description and type of the task as well as ID of the agent on which the task was executed. If specified values of input parameters of specific executed scripts will be retrieved as well.
 
