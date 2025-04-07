@@ -48,7 +48,7 @@ While implementing **SLC - GQI - Scheduled - Tasks - Occurrences**, you should s
 As a result, the GQI will retrieve the start and end time, name, description, and type of the task as well as the ID of the Agent on which the task was executed. If specified, values of input parameters of specific executed scripts will be retrieved as well.
 
 > [!IMPORTANT]
-> The duration of tasks does not reflect the actual time that tasks took to execute. This only enables the task occurrence to be visualized in the specified number of seconds.
+> The duration of tasks does not reflect the actual time that tasks took to execute. This input parameter sets the occurrence duration, in seconds, for visualization purposes.
 
 > [!NOTE]
 > Only active scheduled tasks will be retrieved.
