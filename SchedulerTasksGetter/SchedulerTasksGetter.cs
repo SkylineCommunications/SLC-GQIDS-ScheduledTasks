@@ -5,8 +5,11 @@ namespace SchedulerTasksGetter
 	using System.Linq;
 	using System.Text.RegularExpressions;
 
+	using Skyline.DataMiner.Net.Messages;
 	using Skyline.DataMiner.Analytics.GenericInterface;
 	using Skyline.DataMiner.Net.Messages;
+	using Skyline.DataMiner.Net.Messages.Advanced;
+	using Skyline.DataMiner.Net.Scheduling;
 
 	/// <summary> Represents a data source. See: https://aka.dataminer.services/gqi-external-data-source for a complete example. </summary>
 	[GQIMetaData(Name = "SLC - GQI - Scheduled - Tasks")]
@@ -15,11 +18,13 @@ namespace SchedulerTasksGetter
 		private readonly GQIStringArgument nameFilterArgument = new GQIStringArgument("Name Filter") { IsRequired = false, DefaultValue = ".*" };
 		private readonly List<SchedulerTask> scheduledTasks = new List<SchedulerTask>();
 		private GQIDMS dms;
+
 		private string nameFilter;
 
 		public OnInitOutputArgs OnInit(OnInitInputArgs args)
 		{
 			dms = args.DMS;
+
 			return default;
 		}
 
@@ -49,6 +54,7 @@ namespace SchedulerTasksGetter
 				new GQIStringColumn("Description"),
 				new GQIStringColumn("Type"),
 				new GQIStringColumn("DataMiner"),
+				new GQIStringColumn("Last Result"),
 			};
 			return columns.ToArray();
 		}
@@ -70,6 +76,7 @@ namespace SchedulerTasksGetter
 					new GQICell { Value = task.Description },
 					new GQICell { Value = task.RepeatType.ToString() },
 					new GQICell { Value = task.HandlingDMA.ToString() },
+					new GQICell { Value = task.LastExecuteResult},
 				};
 
 				rows.Add(new GQIRow(cells.ToArray()));
@@ -80,28 +87,47 @@ namespace SchedulerTasksGetter
 
 		private IEnumerable<SchedulerTask> GetTasks(Func<Skyline.DataMiner.Net.Messages.SchedulerTask, bool> selector)
 		{
+
+			var dmaId = GetDmaInfo();
 			var result = new List<Skyline.DataMiner.Net.Messages.SchedulerTask>();
 			GetInfoMessage getInfoMessage = new GetInfoMessage
 			{
 				Type = InfoType.SchedulerTasks,
 			};
 
-			var schedulerInfo = dms.SendMessages(getInfoMessage).OfType<GetSchedulerTasksResponseMessage>();
-
-			var tasksList = schedulerInfo.FirstOrDefault();
+			var schedulerTasks = dms.SendMessages(getInfoMessage).OfType<GetSchedulerTasksResponseMessage>();
+			var tasksList = schedulerTasks.FirstOrDefault();
+			GetSchedulerInfoMessage getSchedulerInfoMessage = new GetSchedulerInfoMessage(13, dmaId);
+			var additionalSchedulerInfo = (GetSchedulerInfoResponseMessage)dms.SendMessage(getSchedulerInfoMessage);
 
 			if (tasksList?.Tasks != null)
 			{
-				foreach (var task in tasksList.Tasks)
+				for (int i = 0; i < tasksList.Tasks.Count; i++)
 				{
+					var task = tasksList.Tasks[i];
 					if (task is Skyline.DataMiner.Net.Messages.SchedulerTask scheduleTask && selector(scheduleTask))
 					{
+
+						scheduleTask.LastExecuteResult = additionalSchedulerInfo.psaRet.Psa[i].Sa[2];
 						result.Add(scheduleTask);
+
 					}
 				}
 			}
 
 			return result;
+
+		}
+
+		private int GetDmaInfo()
+		{
+			GetInfoMessage getInfoMessage = new GetInfoMessage
+			{
+				Type = InfoType.DataMinerInfo,
+			};
+
+			var info = (GetDataMinerInfoResponseMessage)dms.SendMessage(getInfoMessage);
+			return info.ID;
 		}
 	}
 }
