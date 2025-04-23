@@ -5,11 +5,11 @@ namespace SchedulerTasksGetter
 	using System.Linq;
 	using System.Text.RegularExpressions;
 
-	using Skyline.DataMiner.Net.Messages;
 	using Skyline.DataMiner.Analytics.GenericInterface;
 	using Skyline.DataMiner.Net.Messages;
 	using Skyline.DataMiner.Net.Messages.Advanced;
-	using Skyline.DataMiner.Net.Scheduling;
+
+	using SchedulerTask = Skyline.DataMiner.Net.Messages.SchedulerTask;
 
 	/// <summary> Represents a data source. See: https://aka.dataminer.services/gqi-external-data-source for a complete example. </summary>
 	[GQIMetaData(Name = "SLC - GQI - Scheduled - Tasks")]
@@ -129,5 +129,6 @@ namespace SchedulerTasksGetter
 			var info = (GetDataMinerInfoResponseMessage)dms.SendMessage(getInfoMessage);
 			return info.ID;
 		}
+
 	}
 }
