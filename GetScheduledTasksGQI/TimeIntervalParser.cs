@@ -13,7 +13,8 @@
 		{
 			var occurrences = new List<DateTime>();
 			int intervalMinutes = GetRepeatIntervalInMinutes(repeatInterval);
-			var overallUpperBound = (taskEnd == DateTime.MaxValue) ? rangeEnd : taskEnd;
+			var overallUpperBound = (taskEnd == DateTime.MaxValue) ? rangeEnd : (taskEnd > rangeEnd ? rangeEnd : taskEnd);
+
 			var currentDay = rangeStart.Date;
 			while (currentDay <= overallUpperBound.Date)
 			{
@@ -48,8 +49,9 @@
 			else
 			{
 				// With minute interval: start at baseOccurrence and add until reaching the daily cutoff.
+				// range end still needed here for the tasks that have task end defined that is lower then  taks end
 				var occ = baseOccurrence;
-				while (occ < dailyCutoff && occ <= overallUpperBound && occ<= rangeEnd)
+				while (occ < dailyCutoff && occ <= overallUpperBound)
 				{
 					if (occ >= rangeStart && occ >= taskStart)
 					{
@@ -72,10 +74,11 @@
 			var occurrences = new List<DateTime>();
 			var allowedDays = GetValidDays(repeatInterval, taskStart);
 			int intervalMinutes = GetRepeatIntervalInMinutes(repeatIntervalInMinutes);
-			var overallUpperBound = (taskEnd == DateTime.MaxValue) ? rangeEnd : taskEnd;
+			var overallUpperBound = (taskEnd == DateTime.MaxValue) ? rangeEnd : (taskEnd > rangeEnd ? rangeEnd : taskEnd);
+
 			var current = rangeStart.Date;
 
-			while (current <= overallUpperBound.Date && current < rangeEnd)
+			while (current <= overallUpperBound.Date)
 			{
 				if (allowedDays.Contains(current.DayOfWeek))
 				{
