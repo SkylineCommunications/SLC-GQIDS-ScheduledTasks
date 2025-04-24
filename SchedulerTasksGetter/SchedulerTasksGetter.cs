@@ -54,6 +54,7 @@ namespace SchedulerTasksGetter
 				new GQIStringColumn("Description"),
 				new GQIStringColumn("Type"),
 				new GQIStringColumn("DataMiner"),
+				new GQIStringColumn("Interval"),
 				new GQIStringColumn("Last Result"),
 			};
 			return columns.ToArray();
@@ -76,6 +77,7 @@ namespace SchedulerTasksGetter
 					new GQICell { Value = task.Description },
 					new GQICell { Value = task.RepeatType.ToString() },
 					new GQICell { Value = task.HandlingDMA.ToString() },
+					new GQICell { Value = IntervalBuilder.BuildIntervalString(task)},
 					new GQICell { Value = task.LastExecuteResult},
 				};
 
