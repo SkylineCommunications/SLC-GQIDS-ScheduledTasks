@@ -40,7 +40,7 @@
 
 			if (intervalMinutes == 0)
 			{
-				if (baseOccurrence >= rangeStart && baseOccurrence <= overallUpperBound && baseOccurrence <= dailyCutoff)
+				if (baseOccurrence >= rangeStart && baseOccurrence <= overallUpperBound)
 				{
 					occurrences.Add(baseOccurrence);
 				}
