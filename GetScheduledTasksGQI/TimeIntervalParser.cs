@@ -163,7 +163,7 @@
 		/// <summary>
 		/// Parses the repeat interval days and returns a list of valid days.
 		/// </summary>
-		private static List<DayOfWeek> GetValidDays(string repeatInterval, DateTime taskStart)
+		public static List<DayOfWeek> GetValidDays(string repeatInterval, DateTime taskStart)
 		{
 			var validDays = new List<DayOfWeek>();
 
@@ -190,7 +190,7 @@
 		/// <summary>
 		/// Parses the repeat interval in minutes and returns the parsed value.
 		/// </summary>
-		private static int GetRepeatIntervalInMinutes(string repeatIntervalInMinutes)
+		public static int GetRepeatIntervalInMinutes(string repeatIntervalInMinutes)
 		{
 			int intervalMinutes = 0;
 			if (!string.IsNullOrEmpty(repeatIntervalInMinutes) && int.TryParse(repeatIntervalInMinutes, out int parsedMinutes) && parsedMinutes > 0)
@@ -201,7 +201,7 @@
 			return intervalMinutes;
 		}
 
-		private static HashSet<int> GetDaysFromRepeatInterval(string repeatInterval, DateTime taskStart)
+		public static HashSet<int> GetDaysFromRepeatInterval(string repeatInterval, DateTime taskStart)
 		{
 			var days = new HashSet<int>();
 
@@ -225,7 +225,7 @@
 			return days;
 		}
 
-		private static HashSet<int> GetMonthsFromRepeatInterval(string repeatInterval, DateTime taskStart)
+		public static HashSet<int> GetMonthsFromRepeatInterval(string repeatInterval, DateTime taskStart)
 		{
 			var months = new HashSet<int>();
 
