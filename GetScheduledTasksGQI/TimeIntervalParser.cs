@@ -13,7 +13,7 @@
 		{
 			var occurrences = new List<DateTime>();
 			int intervalMinutes = GetRepeatIntervalInMinutes(repeatInterval);
-			var overallUpperBound = (taskEnd == DateTime.MaxValue) ? rangeEnd : (taskEnd > rangeEnd ? rangeEnd : taskEnd);
+			var overallUpperBound = GetOverallUpperBound(taskEnd, rangeEnd);
 
 			var currentDay = rangeStart.Date;
 			while (currentDay <= overallUpperBound.Date)
@@ -30,6 +30,7 @@
 
 			return occurrences;
 		}
+
 
 		/// <summary>
 		/// Parses daily tasks based on repeat interval in minutes.
@@ -74,7 +75,7 @@
 			var occurrences = new List<DateTime>();
 			var allowedDays = GetValidDays(repeatInterval, taskStart);
 			int intervalMinutes = GetRepeatIntervalInMinutes(repeatIntervalInMinutes);
-			var overallUpperBound = (taskEnd == DateTime.MaxValue) ? rangeEnd : (taskEnd > rangeEnd ? rangeEnd : taskEnd);
+			var overallUpperBound = GetOverallUpperBound(taskEnd, rangeEnd);
 
 			var current = rangeStart.Date;
 
@@ -247,6 +248,22 @@
 			}
 
 			return months;
+		}
+
+		/// <summary>
+		/// Returns the effective upper bound between a task’s end and a range end.
+		/// If the task end is unbounded (DateTime.MaxValue) or comes after the range end,
+		/// this will return rangeEnd; otherwise it returns taskEnd.
+		/// </summary>
+		private static DateTime GetOverallUpperBound(DateTime taskEnd, DateTime rangeEnd)
+		{
+			// Treat MaxValue as “no end,” and cap any later date to the range end
+			if (taskEnd == DateTime.MaxValue || taskEnd > rangeEnd)
+			{
+				return rangeEnd;
+			}
+
+			return taskEnd;
 		}
 	}
 }
