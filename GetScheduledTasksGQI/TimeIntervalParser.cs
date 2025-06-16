@@ -13,7 +13,8 @@
 		{
 			var occurrences = new List<DateTime>();
 			int intervalMinutes = GetRepeatIntervalInMinutes(repeatInterval);
-			var overallUpperBound = (taskEnd == DateTime.MaxValue) ? rangeEnd : taskEnd;
+			var overallUpperBound = GetOverallUpperBound(taskEnd, rangeEnd);
+
 			var currentDay = rangeStart.Date;
 			while (currentDay <= overallUpperBound.Date)
 			{
@@ -30,6 +31,7 @@
 			return occurrences;
 		}
 
+
 		/// <summary>
 		/// Parses daily tasks based on repeat interval in minutes.
 		/// </summary>
@@ -40,7 +42,7 @@
 
 			if (intervalMinutes == 0)
 			{
-				if (baseOccurrence >= rangeStart && baseOccurrence <= overallUpperBound && baseOccurrence <= dailyCutoff)
+				if (baseOccurrence >= rangeStart && baseOccurrence <= overallUpperBound)
 				{
 					occurrences.Add(baseOccurrence);
 				}
@@ -48,8 +50,9 @@
 			else
 			{
 				// With minute interval: start at baseOccurrence and add until reaching the daily cutoff.
+				// range end still needed here for the tasks that have task end defined that is lower then  taks end
 				var occ = baseOccurrence;
-				while (occ < dailyCutoff && occ <= overallUpperBound && occ<= rangeEnd)
+				while (occ < dailyCutoff && occ <= overallUpperBound)
 				{
 					if (occ >= rangeStart && occ >= taskStart)
 					{
@@ -72,10 +75,11 @@
 			var occurrences = new List<DateTime>();
 			var allowedDays = GetValidDays(repeatInterval, taskStart);
 			int intervalMinutes = GetRepeatIntervalInMinutes(repeatIntervalInMinutes);
-			var overallUpperBound = (taskEnd == DateTime.MaxValue) ? rangeEnd : taskEnd;
+			var overallUpperBound = GetOverallUpperBound(taskEnd, rangeEnd);
+
 			var current = rangeStart.Date;
 
-			while (current <= overallUpperBound.Date && current < rangeEnd)
+			while (current <= overallUpperBound.Date)
 			{
 				if (allowedDays.Contains(current.DayOfWeek))
 				{
@@ -160,7 +164,7 @@
 		/// <summary>
 		/// Parses the repeat interval days and returns a list of valid days.
 		/// </summary>
-		private static List<DayOfWeek> GetValidDays(string repeatInterval, DateTime taskStart)
+		public static List<DayOfWeek> GetValidDays(string repeatInterval, DateTime taskStart)
 		{
 			var validDays = new List<DayOfWeek>();
 
@@ -187,7 +191,7 @@
 		/// <summary>
 		/// Parses the repeat interval in minutes and returns the parsed value.
 		/// </summary>
-		private static int GetRepeatIntervalInMinutes(string repeatIntervalInMinutes)
+		public static int GetRepeatIntervalInMinutes(string repeatIntervalInMinutes)
 		{
 			int intervalMinutes = 0;
 			if (!string.IsNullOrEmpty(repeatIntervalInMinutes) && int.TryParse(repeatIntervalInMinutes, out int parsedMinutes) && parsedMinutes > 0)
@@ -198,7 +202,7 @@
 			return intervalMinutes;
 		}
 
-		private static HashSet<int> GetDaysFromRepeatInterval(string repeatInterval, DateTime taskStart)
+		public static HashSet<int> GetDaysFromRepeatInterval(string repeatInterval, DateTime taskStart)
 		{
 			var days = new HashSet<int>();
 
@@ -222,7 +226,7 @@
 			return days;
 		}
 
-		private static HashSet<int> GetMonthsFromRepeatInterval(string repeatInterval, DateTime taskStart)
+		public static HashSet<int> GetMonthsFromRepeatInterval(string repeatInterval, DateTime taskStart)
 		{
 			var months = new HashSet<int>();
 
@@ -244,6 +248,22 @@
 			}
 
 			return months;
+		}
+
+		/// <summary>
+		/// Returns the effective upper bound between a task’s end and a range end.
+		/// If the task end is unbounded (DateTime.MaxValue) or comes after the range end,
+		/// this will return rangeEnd; otherwise it returns taskEnd.
+		/// </summary>
+		private static DateTime GetOverallUpperBound(DateTime taskEnd, DateTime rangeEnd)
+		{
+			// Treat MaxValue as “no end,” and cap any later date to the range end
+			if (taskEnd == DateTime.MaxValue || taskEnd > rangeEnd)
+			{
+				return rangeEnd;
+			}
+
+			return taskEnd;
 		}
 	}
 }

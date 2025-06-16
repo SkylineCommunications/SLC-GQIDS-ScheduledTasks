@@ -31,7 +31,7 @@ While implementing **SLC - GQI - Scheduled - Tasks**, you can optionally specify
 
 ![SchedulerTasks](./Images/Scheduler_Tasks.png)
 
-As a result, the GQI will retrieve the name, description, and type of the task, as well as the ID of the Agent on which the task was executed.
+As a result, the GQI will retrieve the name, description, and type of the task, the ID of the Agent on which the task was executed, the result of the last run of the task, and the task's interval.
 
 ### SLC - GQI - Scheduled - Tasks - Occurrences
 
