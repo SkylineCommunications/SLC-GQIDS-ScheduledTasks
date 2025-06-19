@@ -5,7 +5,7 @@
 	<Type>Automation</Type>
 	<Author>Skyline Communications</Author>
 	<CheckSets>FALSE</CheckSets>
-	<Folder></Folder>
+	<Folder>DataMiner Catalog/General/Get Scheduled Tasks/Ad Hoc Data Sources/SLC - GQI - Scheduled - Tasks - Occurrences</Folder>
 
 	<Protocols>
 	</Protocols>

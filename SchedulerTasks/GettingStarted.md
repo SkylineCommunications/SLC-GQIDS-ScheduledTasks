@@ -72,7 +72,7 @@ For the SDK to be able to download the referenced items from the Catalog, config
 
 ## Executing additional code on installation
 
-Open the `ScehdulerTasks.cs` file to write custom installation code. Common actions include creating elements, services, or views.
+Open the `SchedulerTasks.cs` file to write custom installation code. Common actions include creating elements, services, or views.
 
 > [!TIP]
 > Type `clGetDms` in the .cs file and press Tab twice to insert a snippet that gives you access to the *IDms* classes, making DataMiner manipulation easier.
