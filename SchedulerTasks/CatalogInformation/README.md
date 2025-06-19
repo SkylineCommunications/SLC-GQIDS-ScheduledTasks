@@ -1,8 +1,8 @@
 ## About
 
-This package consists of two ad hoc data sources, **SLC - GQI - Scheduled - Tasks** and **SLC - GQI - Scheduled - Tasks - Occurrences**, that retrieve information about scheduled tasks in a DataMiner System. By implementing these ad hoc data sources in low-code apps and/or dashboards, you can visualize data from the Scheduler module in a custom way.
+This package consists of two ad hoc data sources, **SLC - Get Scheduled Tasks** and **SLC - Get Scheduled Tasks Occurrences**, that retrieve information about scheduled tasks in a DataMiner System. By implementing these ad hoc data sources in low-code apps and/or dashboards, you can visualize data from the Scheduler module in a custom way.
 
-**SLC - GQI - Scheduled - Tasks** provides a list of scheduled tasks from the DataMiner Scheduler module, while **SLC - GQI - Scheduled - Tasks - Occurrences** provides a list of the scheduled task occurrences based on the user's input in a specific period of time. This way, a customizable overview of tasks is provided.
+**SLC - Get Scheduled Tasks** provides a list of scheduled tasks from the DataMiner Scheduler module, while **SLC - Get Scheduled Tasks Occurrences** provides a list of the scheduled task occurrences based on the user's input in a specific period of time. This way, a customizable overview of tasks is provided.
 
 ## Key Features
 
@@ -23,19 +23,19 @@ The versatility of the package lends itself to a broad range of applications, in
 
 ## Configuration 
 
-After the package has been deployed, two ad hoc data sources, **SLC - GQI - Scheduled - Tasks**  and  **SLC - GQI - Scheduled - Tasks - Occurrences**, will be available for use in GQI queries. For more information about GQI, refer to [Generic Query Interface](https://aka.dataminer.services/About_GQI).
+After the package has been deployed, two ad hoc data sources, **SLC - Get Scheduled Tasks**  and  **SLC - Get Scheduled Tasks Occurrences**, will be available for use in GQI queries. For more information about GQI, refer to [Generic Query Interface](https://aka.dataminer.services/About_GQI).
 
-### SLC - GQI - Scheduled - Tasks
+### SLC Get Scheduled Tasks
 
-While implementing **SLC - GQI - Scheduled - Tasks**, you can optionally specify the **Name Filter** input parameter. This regular expression (regex) pattern will be used to match the task name. If no name filter is specified, `.*` is used instead.
+While implementing **SLC - Get Scheduled Tasks**, you can optionally specify the **Name Filter** input parameter. This regular expression (regex) pattern will be used to match the task name. If no name filter is specified, `.*` is used instead.
 
 ![SchedulerTasks](./Images/Scheduler_Tasks.png)
 
 As a result, the GQI will retrieve the name, description, and type of the task, the ID of the Agent on which the task was executed, the result of the last run of the task, and the task's interval.
 
-### SLC - GQI - Scheduled - Tasks - Occurrences
+### SLC - GQI Scheduled Tasks Occurrences
 
-While implementing **SLC - GQI - Scheduled - Tasks - Occurrences**, you should specify the following input parameters:
+While implementing **SLC - Get Scheduled Tasks Occurrences**, you should specify the following input parameters:
 
 - **Name Filter**: Optional. Regular expression (regex) to match the task name. If no name filter is specified, `.*` is used instead.
 - **Start**: The beginning of the time frame during which task occurrences should be recorded.
