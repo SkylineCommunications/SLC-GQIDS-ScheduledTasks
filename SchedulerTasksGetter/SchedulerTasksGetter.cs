@@ -12,7 +12,7 @@ namespace SchedulerTasksGetter
 	using SchedulerTask = Skyline.DataMiner.Net.Messages.SchedulerTask;
 
 	/// <summary> Represents a data source. See: https://aka.dataminer.services/gqi-external-data-source for a complete example. </summary>
-	[GQIMetaData(Name = "SLC - GQI - Scheduled - Tasks")]
+	[GQIMetaData(Name = "SLC - Get Scheduled Tasks")]
 	public sealed class SchedulerTasksGetter : IGQIDataSource, IGQIOnPrepareFetch, IGQIOnInit, IGQIInputArguments
 	{
 		private readonly GQIStringArgument nameFilterArgument = new GQIStringArgument("Name Filter") { IsRequired = false, DefaultValue = ".*" };
