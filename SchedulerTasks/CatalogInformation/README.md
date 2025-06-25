@@ -40,7 +40,7 @@ While implementing **SLC - GQI - Scheduled - Tasks - Occurrences**, you should s
 - **Name Filter**: Optional. Regular expression (regex) to match the task name. If no name filter is specified, `.*` is used instead.
 - **Start**: The beginning of the time frame during which task occurrences should be recorded.
 - **End**: The end of the time frame during which task occurrences are recorded.
-- **Scheduled Duration (s)**: The scheduled duration (in seconds) that will be displayed on the timeline, which does not necessarily match the actual duration.
+- **Scheduled Duration (s)**: The scheduled duration (in seconds) that will be displayed on the timeline, which does not necessarily match the actual time it takes to execute the task. This parameter is intended **for visualization purposes only**.
 - **Script Parameter Inputs**: Optional. Input values in the format `[ScriptName.InputParameterId]`. If nothing is specified for this parameter, no values are retrieved. Note that for tasks that do not include the specified script, an empty value will be returned.
 
 ![SchedulerOccurrences](./Images/Scheduler_Occurrences_SettingUp_75pct.png)
