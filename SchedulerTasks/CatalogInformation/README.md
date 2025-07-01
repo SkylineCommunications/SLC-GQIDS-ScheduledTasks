@@ -40,15 +40,12 @@ While implementing **SLC - GQI - Scheduled - Tasks - Occurrences**, you should s
 - **Name Filter**: Optional. Regular expression (regex) to match the task name. If no name filter is specified, `.*` is used instead.
 - **Start**: The beginning of the time frame during which task occurrences should be recorded.
 - **End**: The end of the time frame during which task occurrences are recorded.
-- **Duration (s)**: A numeric value representing the duration of each task occurrence, expressed in seconds.
+- **Scheduled Duration (s)**: The scheduled duration (in seconds) that will be displayed on the timeline, which does not necessarily match the actual time it takes to execute the task. This parameter is intended **for visualization purposes only**.
 - **Script Parameter Inputs**: Optional. Input values in the format `[ScriptName.InputParameterId]`. If nothing is specified for this parameter, no values are retrieved. Note that for tasks that do not include the specified script, an empty value will be returned.
 
 ![SchedulerOccurrences](./Images/Scheduler_Occurrences_SettingUp_75pct.png)
 
 As a result, the GQI will retrieve the start and end time, name, description, and type of the task as well as the ID of the Agent on which the task was executed. If specified, values of input parameters of specific executed scripts will be retrieved as well.
-
-> [!IMPORTANT]
-> The duration of tasks does not reflect the actual time that tasks took to execute. This input parameter sets the occurrence duration, in seconds, for visualization purposes.
 
 > [!NOTE]
 > Only active scheduled tasks will be retrieved.
