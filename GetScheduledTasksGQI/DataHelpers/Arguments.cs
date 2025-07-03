@@ -10,7 +10,7 @@
 		private readonly GQIStringArgument nameFilter = new GQIStringArgument("Name Filter") { IsRequired = false, DefaultValue = ".*" };
 		private readonly GQIDateTimeArgument start = new GQIDateTimeArgument("Start") { IsRequired = true };
 		private readonly GQIDateTimeArgument end = new GQIDateTimeArgument("End") { IsRequired = true };
-		private readonly GQIIntArgument duration = new GQIIntArgument("Duration (s)") { IsRequired = true };
+		private readonly GQIIntArgument duration = new GQIIntArgument("Scheduled Duration (s)") { IsRequired = true };
 		private readonly GQIStringArgument scriptParameterInputs = new GQIStringArgument("Script Parameter Inputs") { IsRequired = false };
 
 		public string NameFilter { get; private set; }
