@@ -23,14 +23,13 @@
 				// Daily cutoff:
 				// - If taskEnd is MaxValue then cutoff is the start of the next day.
 				// - Otherwise, the cutoff is the current day with taskEnd's time.
-				var dailyCutoff = (taskEnd == DateTime.MaxValue) ? currentDay.AddDays(1) : new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskEnd.Hour, taskEnd.Minute, taskEnd.Second);
+				var dailyCutoff = (taskEnd == DateTime.MaxValue) ? currentDay.AddDays(1) : taskEnd;
 				occurrences.AddRange(CalculateDayOccurrences(baseOccurrence, rangeStart, rangeEnd, overallUpperBound, dailyCutoff, taskStart, intervalMinutes, currentDay));
 				currentDay = currentDay.AddDays(1);
 			}
 
 			return occurrences;
 		}
-
 
 		/// <summary>
 		/// Parses daily tasks based on repeat interval in minutes.
