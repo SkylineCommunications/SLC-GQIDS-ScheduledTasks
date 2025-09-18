@@ -95,12 +95,12 @@ namespace SchedulerTasksGetter
 				yield break;
 
 			var additionalSchedulerInfo = (GetSchedulerInfoResponseMessage)dms.SendMessage(new GetSchedulerInfoMessage(13, dmaId));
-			var taskDetailsLookup = additionalSchedulerInfo.psaRet.Psa.Where(t => t.Sa.Count() > 3).GroupBy(t => t.Sa[0]).ToDictionary(g => g.Key, g => g.First().Sa[2]);
+			var detailsAboutAllScheduledTasks = additionalSchedulerInfo.psaRet.Psa.Where(t => t.Sa.Count() > 3).GroupBy(t => t.Sa[0]).ToDictionary(g => g.Key, g => g.First().Sa[2]);
 
-			foreach (var scheduleTask in tasksList.Tasks.OfType<SchedulerTask>().Where(selector))
+			foreach (var schedulerTask in tasksList.Tasks.OfType<SchedulerTask>().Where(selector))
 			{
-				scheduleTask.LastExecuteResult = taskDetailsLookup.TryGetValue(scheduleTask.TaskName, out var result) ? result : "N/A";
-				yield return scheduleTask;
+				schedulerTask.LastExecuteResult = detailsAboutAllScheduledTasks.TryGetValue(schedulerTask.TaskName, out var result) ? result : "N/A";
+				yield return schedulerTask;
 			}
 		}
 
