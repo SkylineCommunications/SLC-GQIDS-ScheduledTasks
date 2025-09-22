@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Linq;
 
 	public static class TimeIntervalParser
 	{
@@ -11,31 +12,25 @@
 		/// <returns> Returns list of timings when the task will be executed.</returns>
 		public static List<DateTime> ParseDailyTask(string repeatInterval, DateTime rangeStart, DateTime rangeEnd, DateTime taskStart, DateTime taskEnd)
 		{
-			var occurrences = new List<DateTime>();
 			int intervalMinutes = GetRepeatIntervalInMinutes(repeatInterval);
 			var overallUpperBound = GetOverallUpperBound(taskEnd, rangeEnd);
 
 			var currentDay = rangeStart.Date;
-			while (currentDay <= overallUpperBound.Date)
-			{
-				var baseOccurrence = new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
+			var baseOccurrence = new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
 
-				// Daily cutoff:
-				// - If taskEnd is MaxValue then cutoff is the start of the next day.
-				// - Otherwise, the cutoff is the current day with taskEnd's time.
-				var dailyCutoff = (taskEnd == DateTime.MaxValue) ? currentDay.AddDays(1) : taskEnd;
-				occurrences.AddRange(CalculateDayOccurrences(baseOccurrence, rangeStart, rangeEnd, overallUpperBound, dailyCutoff, taskStart, intervalMinutes, currentDay));
-				currentDay = currentDay.AddDays(1);
-			}
+			// Daily cutoff:
+			// - If taskEnd is MaxValue then cutoff is the start of the next day.
+			// - Otherwise, the cutoff is the current day with taskEnd's time.
+			var dailyCutoff = (taskEnd == DateTime.MaxValue) ? currentDay.AddDays(1) : new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskEnd.Hour, taskEnd.Minute, taskEnd.Second);
 
-			return occurrences;
+			return CalculateDayOccurrences(baseOccurrence, rangeStart, rangeEnd, overallUpperBound, dailyCutoff, taskStart, intervalMinutes);
 		}
 
 		/// <summary>
 		/// Parses daily tasks based on repeat interval in minutes.
 		/// </summary>
 		/// <returns> Returns list of timings when the task will be executed in one day.</returns>
-		public static List<DateTime> CalculateDayOccurrences(DateTime baseOccurrence, DateTime rangeStart, DateTime rangeEnd, DateTime overallUpperBound, DateTime dailyCutoff, DateTime taskStart, int intervalMinutes, DateTime currentDay)
+		public static List<DateTime> CalculateDayOccurrences(DateTime baseOccurrence, DateTime rangeStart, DateTime rangeEnd, DateTime overallUpperBound, DateTime dailyCutoff, DateTime taskStart, int intervalMinutes)
 		{
 			var occurrences = new List<DateTime>();
 
@@ -51,12 +46,11 @@
 				// With minute interval: start at baseOccurrence and add until reaching the daily cutoff.
 				// range end still needed here for the tasks that have task end defined that is lower then  taks end
 				var occ = baseOccurrence;
-				while (occ < dailyCutoff && occ <= overallUpperBound)
+
+				while (occ < overallUpperBound)
 				{
-					if (occ >= rangeStart && occ >= taskStart)
-					{
+					if (occ >= rangeStart && (occ.TimeOfDay >= taskStart.TimeOfDay || occ.TimeOfDay < dailyCutoff.TimeOfDay))
 						occurrences.Add(occ);
-					}
 
 					occ = occ.AddMinutes(intervalMinutes);
 				}
@@ -85,13 +79,13 @@
 					var baseOccurrence = new DateTime(current.Year, current.Month, current.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
 					var dailyCutoff = (taskEnd == DateTime.MaxValue) ? current.AddDays(1) : new DateTime(current.Year, current.Month, current.Day, taskEnd.Hour, taskEnd.Minute, taskEnd.Second);
 
-					occurrences.AddRange(CalculateDayOccurrences(baseOccurrence, rangeStart, rangeEnd, overallUpperBound, dailyCutoff, taskStart, intervalMinutes, current));
+					occurrences.AddRange(CalculateDayOccurrences(baseOccurrence, rangeStart, rangeEnd, overallUpperBound, dailyCutoff, taskStart, intervalMinutes));
 				}
 
 				current = current.AddDays(1);
 			}
 
-			return occurrences;
+			return occurrences.Distinct().ToList();
 		}
 
 		/// <summary>
@@ -259,7 +253,7 @@
 			// Treat MaxValue as “no end,” and cap any later date to the range end
 			if (taskEnd == DateTime.MaxValue || taskEnd > rangeEnd)
 			{
-				return rangeEnd;
+				return rangeEnd.ToLocalTime();
 			}
 
 			return taskEnd;

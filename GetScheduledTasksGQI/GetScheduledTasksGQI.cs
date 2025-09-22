@@ -104,8 +104,8 @@ namespace GetScheduledTasksGQI
 
 		private void ProcessScheduledTasks()
 		{
-			var rangeStart = arguments.Start;
-			var rangeEnd = arguments.End;
+			var rangeStart = arguments.Start.ToLocalTime();
+			var rangeEnd = arguments.End.ToLocalTime();
 
 			foreach (var task in scheduledTasks)
 			{
@@ -131,9 +131,7 @@ namespace GetScheduledTasksGQI
 							break;
 						case SchedulerRepeatType.Once:
 							if (taskStart >= rangeStart && taskStart <= rangeEnd)
-							{
 								occurrences.Add(taskStart);
-							}
 
 							break;
 						default:
@@ -158,8 +156,8 @@ namespace GetScheduledTasksGQI
 		{
 			var cells = new List<GQICell>
 			{
-				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime, DateTimeKind.Utc) },
-				new GQICell { Value = DateTime.SpecifyKind(occurrenceTime.AddSeconds(arguments.Duration), DateTimeKind.Utc)},
+				new GQICell { Value = occurrenceTime.ToUniversalTime() },
+				new GQICell { Value = occurrenceTime.AddSeconds(arguments.Duration).ToUniversalTime()},
 				new GQICell { Value = task.TaskName },
 				new GQICell { Value = task.Description },
 				new GQICell { Value = task.RepeatType.ToString() },
