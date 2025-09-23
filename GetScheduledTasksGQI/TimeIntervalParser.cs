@@ -16,12 +16,18 @@
 			var overallUpperBound = GetOverallUpperBound(taskEnd, rangeEnd);
 
 			var currentDay = rangeStart.Date;
-			var baseOccurrence = new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
 
 			// Daily cutoff:
 			// - If taskEnd is MaxValue then cutoff is the start of the next day.
 			// - Otherwise, the cutoff is the current day with taskEnd's time.
-			var dailyCutoff = (taskEnd == DateTime.MaxValue) ? currentDay.AddDays(1) : new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskEnd.Hour, taskEnd.Minute, taskEnd.Second);
+			var dailyCutoff = (taskEnd.Date == DateTime.MinValue.Date) ? currentDay.AddDays(1) : new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskEnd.Hour, taskEnd.Minute, taskEnd.Second);
+
+			var baseOccurrence = new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
+
+			if (baseOccurrence.TimeOfDay > dailyCutoff.TimeOfDay && taskEnd < rangeEnd)
+			{
+				overallUpperBound = overallUpperBound.AddDays(1);
+			}
 
 			return CalculateDayOccurrences(baseOccurrence, rangeStart, rangeEnd, overallUpperBound, dailyCutoff, taskStart, intervalMinutes);
 		}
@@ -251,7 +257,7 @@
 		private static DateTime GetOverallUpperBound(DateTime taskEnd, DateTime rangeEnd)
 		{
 			// Treat MaxValue as “no end,” and cap any later date to the range end
-			if (taskEnd == DateTime.MaxValue || taskEnd > rangeEnd)
+			if (taskEnd.Date == DateTime.MinValue.Date || taskEnd > rangeEnd)
 			{
 				return rangeEnd.ToLocalTime();
 			}
