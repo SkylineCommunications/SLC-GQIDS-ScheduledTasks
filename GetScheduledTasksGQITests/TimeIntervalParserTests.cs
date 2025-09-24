@@ -117,7 +117,7 @@
 		}
 
 		[TestMethod]
-		public void ParseDailyTask_WithoutEndDate()
+		public void ParseDailyTask_WithoutEndDateTest()
 		{
 			var taskStart = new DateTime(2025, 9, 17, 13, 0, 0);
 			var taskEnd = DateTime.MinValue;
