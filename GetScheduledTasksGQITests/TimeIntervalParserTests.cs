@@ -1,17 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GetScheduledTasksGQI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GetScheduledTasksGQI.Tests
+﻿namespace GetScheduledTasksGQI.Tests
 {
-	[TestClass()]
+	using System;
+	using System.Collections.Generic;
+	using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+	[TestClass]
 	public class TimeIntervalParserTests
 	{
-		[TestMethod()]
+		[TestMethod]
 		public void ParseDailyTaskEndBeforeStartTest()
 		{
 			var taskStart = new DateTime(2025, 9, 17, 13, 0, 0);
@@ -40,10 +36,11 @@ namespace GetScheduledTasksGQI.Tests
 				new DateTime(2025, 9, 20, 22, 0, 0),
 				new DateTime(2025, 9, 20, 23, 0, 0),
 			};
+
 			CollectionAssert.AreEqual(expectedOccurrences, occurrences);
         }
 
-		[TestMethod()]
+		[TestMethod]
 		public void ParseDailyTaskStartBeforeEndTest()
 		{
 			var taskStart = new DateTime(2025, 9, 17, 10, 0, 0);
@@ -115,6 +112,25 @@ namespace GetScheduledTasksGQI.Tests
 				new DateTime(2025, 9, 27, 18, 0, 0),
 				new DateTime(2025, 9, 27, 19, 0, 0),
 			};
+
+			CollectionAssert.AreEqual(expectedOccurrences, occurrences);
+		}
+
+		[TestMethod()]
+		public void ParseDailyTaskStartBeforeEnd_RepeatIntervalZero()
+		{
+			var taskStart = new DateTime(2025, 9, 20, 10, 0, 0);
+			var taskEnd = new DateTime(2025, 9, 27, 20, 0, 0);
+			var rangeStart = new DateTime(2025, 9, 17, 0, 0, 0);
+			var rangeEnd = new DateTime(2025, 9, 21, 0, 0, 0);
+			var repeatInterval = "0"; // every 60 minutes
+			var occurrences = TimeIntervalParser.ParseDailyTask(repeatInterval, rangeStart, rangeEnd, taskStart, taskEnd);
+
+			var expectedOccurrences = new List<DateTime>
+			{
+				new DateTime(2025, 9, 20, 10, 0, 0),
+			};
+
 			CollectionAssert.AreEqual(expectedOccurrences, occurrences);
 		}
 	}
