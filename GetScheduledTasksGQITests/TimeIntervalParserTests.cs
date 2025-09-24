@@ -116,6 +116,45 @@
 			CollectionAssert.AreEqual(expectedOccurrences, occurrences);
 		}
 
+		[TestMethod()]
+		public void ParseDailyTaskEndBeforeStart_LateRangeTest()
+		{
+			var taskStart = new DateTime(2025, 9, 20, 13, 0, 0);
+			var taskEnd = new DateTime(2025, 9, 27, 6, 0, 0);
+			var rangeStart = new DateTime(2025, 9, 27, 0, 0, 0);
+			var rangeEnd = new DateTime(2025, 9, 30, 0, 0, 0);
+			var repeatInterval = "60"; // every 60 minutes
+			var occurrences = TimeIntervalParser.ParseDailyTask(repeatInterval, rangeStart, rangeEnd, taskStart, taskEnd);
+			var expectedOccurrences = new List<DateTime>
+			{
+				new DateTime(2025, 9, 27, 0, 0, 0),
+				new DateTime(2025, 9, 27, 1, 0, 0),
+				new DateTime(2025, 9, 27, 2, 0, 0),
+				new DateTime(2025, 9, 27, 3, 0, 0),
+				new DateTime(2025, 9, 27, 4, 0, 0),
+				new DateTime(2025, 9, 27, 5, 0, 0),
+				new DateTime(2025, 9, 27, 13, 0, 0),
+				new DateTime(2025, 9, 27, 14, 0, 0),
+				new DateTime(2025, 9, 27, 15, 0, 0),
+				new DateTime(2025, 9, 27, 16, 0, 0),
+				new DateTime(2025, 9, 27, 17, 0, 0),
+				new DateTime(2025, 9, 27, 18, 0, 0),
+				new DateTime(2025, 9, 27, 19, 0, 0),
+				new DateTime(2025, 9, 27, 20, 0, 0),
+				new DateTime(2025, 9, 27, 21, 0, 0),
+				new DateTime(2025, 9, 27, 22, 0, 0),
+				new DateTime(2025, 9, 27, 23, 0, 0),
+				new DateTime(2025, 9, 28, 0, 0, 0),
+				new DateTime(2025, 9, 28, 1, 0, 0),
+				new DateTime(2025, 9, 28, 2, 0, 0),
+				new DateTime(2025, 9, 28, 3, 0, 0),
+				new DateTime(2025, 9, 28, 4, 0, 0),
+				new DateTime(2025, 9, 28, 5, 0, 0),
+			};
+
+			CollectionAssert.AreEqual(expectedOccurrences, occurrences);
+		}
+
 		[TestMethod]
 		public void ParseDailyTask_WithoutEndDateTest()
 		{
