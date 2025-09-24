@@ -133,5 +133,23 @@
 
 			CollectionAssert.AreEqual(expectedOccurrences, occurrences);
 		}
+
+		[TestMethod()]
+		public void ParseDailyRangeStartBeforeEnd_RepeatIntervalZero()
+		{
+			var taskStart = new DateTime(2025, 9, 16, 10, 0, 0);
+			var taskEnd = new DateTime(2025, 9, 27, 20, 0, 0);
+			var rangeStart = new DateTime(2025, 9, 17, 0, 0, 0);
+			var rangeEnd = new DateTime(2025, 9, 21, 0, 0, 0);
+			var repeatInterval = "0"; // every 60 minutes
+			var occurrences = TimeIntervalParser.ParseDailyTask(repeatInterval, rangeStart, rangeEnd, taskStart, taskEnd);
+
+			var expectedOccurrences = new List<DateTime>
+			{
+				new DateTime(2025, 9, 17, 10, 0, 0),
+			};
+
+			CollectionAssert.AreEqual(expectedOccurrences, occurrences);
+		}
 	}
 }
