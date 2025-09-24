@@ -24,7 +24,7 @@
 			}
 
 			var effectiveStart = rangeStart < taskStart ? taskStart : rangeStart;
-			var effectiveEnd = rangeEnd > taskEnd ? taskEnd : rangeEnd;
+			var effectiveEnd = rangeEnd > taskEnd && taskEnd.Date != DateTime.MinValue.Date ? taskEnd : rangeEnd;
 
 			if (effectiveStart >= effectiveEnd)
 			{
