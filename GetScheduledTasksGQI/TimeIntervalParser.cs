@@ -23,17 +23,18 @@
 				return results;
 			}
 
-			var effectiveStart = rangeStart < taskStart ? taskStart : rangeStart;
-			var effectiveEnd = rangeEnd > taskEnd && taskEnd.Date != DateTime.MinValue.Date ? taskEnd : rangeEnd;
-
-			if (effectiveStart >= effectiveEnd)
-			{
-				return results;
-			}
-
 			var startTimeOfDay = taskStart.TimeOfDay;
 			var endTimeOfDay = taskEnd.TimeOfDay;
 			bool wrapsAround = startTimeOfDay > endTimeOfDay;
+
+			var effectiveStart = rangeStart < taskStart ? taskStart : rangeStart;
+			var effectiveEnd = GetEffectiveEnd(rangeEnd, taskEnd);
+
+			if (wrapsAround && effectiveEnd.Date == taskEnd.Date)
+				effectiveEnd = effectiveEnd.AddDays(1);
+
+			if (effectiveStart >= effectiveEnd)
+				return results;
 
 			for (var day = effectiveStart.Date; day <= effectiveEnd.Date; day = day.AddDays(1))
 			{
@@ -43,12 +44,22 @@
 				}
 				else
 				{
+					// Early morning segment (from 00:00 to taskEnd.TimeOfDay)
 					GenerateDailyOccurrences(day, day + endTimeOfDay, intervalMinutes, effectiveStart, effectiveEnd, results);
-					GenerateDailyOccurrences(day + startTimeOfDay, day.AddDays(1), intervalMinutes, effectiveStart, effectiveEnd, results);
+					// Evening segment (from taskStart.TimeOfDay to next day's taskEnd)
+					GenerateDailyOccurrences(day + startTimeOfDay, day.AddDays(1) + endTimeOfDay, intervalMinutes, effectiveStart, effectiveEnd, results);
 				}
 			}
 
-			return results;
+			return results.Distinct().ToList();
+		}
+
+		private static DateTime GetEffectiveEnd(DateTime rangeEnd, DateTime taskEnd)
+		{
+			if (taskEnd.Date != DateTime.MinValue.Date && rangeEnd > taskEnd)
+				return taskEnd;
+			else
+				return rangeEnd;
 		}
 
 		private static void GenerateDailyOccurrences(DateTime segmentStart, DateTime segmentEnd, int intervalMinutes, DateTime effectiveStart, DateTime effectiveEnd, List<DateTime> results)

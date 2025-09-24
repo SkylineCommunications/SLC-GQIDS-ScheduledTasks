@@ -119,14 +119,17 @@
 		[TestMethod]
 		public void ParseDailyTask_WithoutEndDateTest()
 		{
-			var taskStart = new DateTime(2025, 9, 17, 13, 0, 0);
-			var taskEnd = DateTime.MinValue;
+			var taskStart = new DateTime(2025, 9, 17, 10, 0, 0);
+			var taskEnd = new DateTime(1, 1 ,1, 20, 0 ,0);
 			var rangeStart = new DateTime(2025, 9, 20, 0, 0, 0);
 			var rangeEnd = new DateTime(2025, 9, 21, 0, 0, 0);
 			var repeatInterval = "60"; // every 60 minutes
 			var occurrences = TimeIntervalParser.ParseDailyTask(repeatInterval, rangeStart, rangeEnd, taskStart, taskEnd);
 			var expectedOccurrences = new List<DateTime>
 			{
+				new DateTime(2025, 9, 20, 10, 0, 0),
+				new DateTime(2025, 9, 20, 11, 0, 0),
+				new DateTime(2025, 9, 20, 12, 0, 0),
 				new DateTime(2025, 9, 20, 13, 0, 0),
 				new DateTime(2025, 9, 20, 14, 0, 0),
 				new DateTime(2025, 9, 20, 15, 0, 0),
@@ -134,10 +137,49 @@
 				new DateTime(2025, 9, 20, 17, 0, 0),
 				new DateTime(2025, 9, 20, 18, 0, 0),
 				new DateTime(2025, 9, 20, 19, 0, 0),
-				new DateTime(2025, 9, 20, 20, 0, 0),
-				new DateTime(2025, 9, 20, 21, 0, 0),
-				new DateTime(2025, 9, 20, 22, 0, 0),
-				new DateTime(2025, 9, 20, 23, 0, 0),
+			};
+
+			Assert.AreEqual(10, occurrences.Count);
+			CollectionAssert.AreEqual(expectedOccurrences, occurrences);
+		}
+
+		[TestMethod]
+		public void ParseDailyTask_WithEndDateTimeBeforeStartTimeTest()
+		{
+			var taskStart = new DateTime(2025, 9, 17, 20, 0, 0);
+			var taskEnd = new DateTime(2025, 9, 19, 06, 0, 0);
+			var rangeStart = new DateTime(2025, 9, 18, 0, 0, 0);
+			var rangeEnd = new DateTime(2025, 9, 21, 0, 0, 0);
+			var repeatInterval = "60"; // every 60 minutes
+			var occurrences = TimeIntervalParser.ParseDailyTask(repeatInterval, rangeStart, rangeEnd, taskStart, taskEnd);
+			var expectedOccurrences = new List<DateTime>
+			{
+				new DateTime(2025, 9, 18, 0, 0, 0),
+				new DateTime(2025, 9, 18, 1, 0, 0),
+				new DateTime(2025, 9, 18, 2, 0, 0),
+				new DateTime(2025, 9, 18, 3, 0, 0),
+				new DateTime(2025, 9, 18, 4, 0, 0),
+				new DateTime(2025, 9, 18, 5, 0, 0),
+				new DateTime(2025, 9, 18, 20, 0, 0),
+				new DateTime(2025, 9, 18, 21, 0, 0),
+				new DateTime(2025, 9, 18, 22, 0, 0),
+				new DateTime(2025, 9, 18, 23, 0, 0),
+				new DateTime(2025, 9, 19, 0, 0, 0),
+				new DateTime(2025, 9, 19, 1, 0, 0),
+				new DateTime(2025, 9, 19, 2, 0, 0),
+				new DateTime(2025, 9, 19, 3, 0, 0),
+				new DateTime(2025, 9, 19, 4, 0, 0),
+				new DateTime(2025, 9, 19, 5, 0, 0),
+				new DateTime(2025, 9, 19, 20, 0, 0),
+				new DateTime(2025, 9, 19, 21, 0, 0),
+				new DateTime(2025, 9, 19, 22, 0, 0),
+				new DateTime(2025, 9, 19, 23, 0, 0),
+				new DateTime(2025, 9, 20, 0, 0, 0),
+				new DateTime(2025, 9, 20, 1, 0, 0),
+				new DateTime(2025, 9, 20, 2, 0, 0),
+				new DateTime(2025, 9, 20, 3, 0, 0),
+				new DateTime(2025, 9, 20, 4, 0, 0),
+				new DateTime(2025, 9, 20, 5, 0, 0),
 			};
 
 			CollectionAssert.AreEqual(expectedOccurrences, occurrences);
