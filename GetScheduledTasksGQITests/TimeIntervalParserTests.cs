@@ -224,14 +224,14 @@
 			CollectionAssert.AreEqual(expectedOccurrences, occurrences);
 		}
 
-		[TestMethod()]
+		[TestMethod]
 		public void ParseDailyTaskStartBeforeEnd_RepeatIntervalZeroTest()
 		{
 			var taskStart = new DateTime(2025, 9, 20, 10, 0, 0);
 			var taskEnd = new DateTime(2025, 9, 27, 20, 0, 0);
 			var rangeStart = new DateTime(2025, 9, 17, 0, 0, 0);
 			var rangeEnd = new DateTime(2025, 9, 21, 0, 0, 0);
-			var repeatInterval = "0"; // every 60 minutes
+			var repeatInterval = "0"; // Only once a day
 			var occurrences = TimeIntervalParser.ParseDailyTask(repeatInterval, rangeStart, rangeEnd, taskStart, taskEnd);
 
 			var expectedOccurrences = new List<DateTime>
@@ -242,14 +242,14 @@
 			CollectionAssert.AreEqual(expectedOccurrences, occurrences);
 		}
 
-		[TestMethod()]
+		[TestMethod]
 		public void ParseDailyRangeStartBeforeEnd_RepeatIntervalZeroTest()
 		{
 			var taskStart = new DateTime(2025, 9, 16, 10, 0, 0);
 			var taskEnd = new DateTime(2025, 9, 27, 20, 0, 0);
 			var rangeStart = new DateTime(2025, 9, 17, 0, 0, 0);
 			var rangeEnd = new DateTime(2025, 9, 21, 0, 0, 0);
-			var repeatInterval = "0"; // every 60 minutes
+			var repeatInterval = "0"; // Only once a day
 			var occurrences = TimeIntervalParser.ParseDailyTask(repeatInterval, rangeStart, rangeEnd, taskStart, taskEnd);
 
 			var expectedOccurrences = new List<DateTime>
