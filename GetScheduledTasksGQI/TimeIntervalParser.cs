@@ -2,34 +2,103 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Linq;
 
 	public static class TimeIntervalParser
 	{
 		/// <summary>
 		/// Parses daily tasks based on repeat interval in minutes.
 		/// </summary>
+		/// <param name="repeatInterval">Number of minutes in between occurences, 0 for once per day.</param>
+		/// <param name="rangeStart">Selected start time by user.</param>
+		/// <param name="rangeEnd">Selected end time by user.</param>
+		/// <param name="taskStart">Actual start time of task.</param>
+		/// <param name="taskEnd">Actual end time of task.</param>
 		/// <returns> Returns list of timings when the task will be executed.</returns>
 		public static List<DateTime> ParseDailyTask(string repeatInterval, DateTime rangeStart, DateTime rangeEnd, DateTime taskStart, DateTime taskEnd)
 		{
-			var occurrences = new List<DateTime>();
-			int intervalMinutes = GetRepeatIntervalInMinutes(repeatInterval);
-			var overallUpperBound = GetOverallUpperBound(taskEnd, rangeEnd);
-
-			var currentDay = rangeStart.Date;
-			while (currentDay <= overallUpperBound.Date)
+			var results = new List<DateTime>();
+			if (!int.TryParse(repeatInterval, out int intervalMinutes) || intervalMinutes < 0)
 			{
-				var baseOccurrence = new DateTime(currentDay.Year, currentDay.Month, currentDay.Day, taskStart.Hour, taskStart.Minute, taskStart.Second);
-
-				// Daily cutoff:
-				// - If taskEnd is MaxValue then cutoff is the start of the next day.
-				// - Otherwise, the cutoff is the current day with taskEnd's time.
-				var dailyCutoff = (taskEnd == DateTime.MaxValue) ? currentDay.AddDays(1) : taskEnd;
-				occurrences.AddRange(CalculateDayOccurrences(baseOccurrence, rangeStart, rangeEnd, overallUpperBound, dailyCutoff, taskStart, intervalMinutes, currentDay));
-				currentDay = currentDay.AddDays(1);
+				return results;
 			}
 
-			return occurrences;
+			var taskStartTimeOfDay = taskStart.TimeOfDay;
+			var taskEndTimeOfDay = taskEnd.TimeOfDay;
+			bool expandsForMultipleDays = taskStartTimeOfDay > taskEndTimeOfDay;
+
+			var actualStartDate = rangeStart < taskStart ? taskStart : rangeStart;
+			var actualEndDate = GetActualEnd(rangeEnd, taskEnd);
+
+			if (expandsForMultipleDays && actualEndDate.Date == taskEnd.Date)
+				actualEndDate = actualEndDate.AddDays(1);
+
+			if (actualStartDate >= actualEndDate)
+				return results;
+
+			for (var day = actualStartDate.Date; day <= actualEndDate.Date; day = day.AddDays(1))
+			{
+				if (!expandsForMultipleDays)
+				{
+					GenerateDailyOccurrences(day + taskStartTimeOfDay, day + taskEndTimeOfDay, intervalMinutes, actualStartDate, actualEndDate, results);
+				}
+				else
+				{
+					// Early morning segment (from 00:00 to taskEnd.TimeOfDay)
+					GenerateDailyOccurrences(day, day + taskEndTimeOfDay, intervalMinutes, actualStartDate, actualEndDate, results);
+					// Evening segment (from taskStart.TimeOfDay to next day's taskEnd)
+					GenerateDailyOccurrences(day + taskStartTimeOfDay, day.AddDays(1) + taskEndTimeOfDay, intervalMinutes, actualStartDate, actualEndDate, results);
+				}
+			}
+
+			return results.Distinct().ToList();
 		}
+
+		private static DateTime GetActualEnd(DateTime rangeEnd, DateTime taskEnd)
+		{
+			if (taskEnd.Date != DateTime.MinValue.Date && rangeEnd > taskEnd)
+				return taskEnd;
+			else
+				return rangeEnd;
+		}
+
+		private static void GenerateDailyOccurrences(DateTime segmentStart, DateTime segmentEnd, int intervalMinutes, DateTime effectiveStart, DateTime effectiveEnd, List<DateTime> results)
+		{
+			if (segmentStart >= segmentEnd)
+			{
+				return;
+			}
+
+			var start = segmentStart < effectiveStart ? effectiveStart : segmentStart;
+			var end = segmentEnd > effectiveEnd ? effectiveEnd : segmentEnd;
+
+			if (start >= end)
+			{
+				return;
+			}
+
+			var first = intervalMinutes > 0 ? new DateTime(start.Ticks - (start.Ticks % TimeSpan.FromMinutes(intervalMinutes).Ticks)) : start;
+
+			if (first < start)
+			{
+				first = first.AddMinutes(intervalMinutes);
+			}
+
+			if (intervalMinutes <= 0)
+			{
+				// Take just first occurrence if interval is zero
+				if (!results.Any())
+					results.Add(first);
+
+				return;
+			}
+
+			for (var current = first; current < end; current = current.AddMinutes(intervalMinutes))
+			{
+				results.Add(current);
+			}
+		}
+
 
 		/// <summary>
 		/// Parses daily tasks based on repeat interval in minutes.
@@ -257,9 +326,9 @@
 		private static DateTime GetOverallUpperBound(DateTime taskEnd, DateTime rangeEnd)
 		{
 			// Treat MaxValue as “no end,” and cap any later date to the range end
-			if (taskEnd == DateTime.MaxValue || taskEnd > rangeEnd)
+			if (taskEnd.Date == DateTime.MinValue.Date || taskEnd > rangeEnd)
 			{
-				return rangeEnd;
+				return rangeEnd.ToLocalTime();
 			}
 
 			return taskEnd;
