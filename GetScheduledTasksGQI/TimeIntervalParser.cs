@@ -23,38 +23,38 @@
 				return results;
 			}
 
-			var startTimeOfDay = taskStart.TimeOfDay;
-			var endTimeOfDay = taskEnd.TimeOfDay;
-			bool wrapsAround = startTimeOfDay > endTimeOfDay;
+			var taskStartTimeOfDay = taskStart.TimeOfDay;
+			var taskEndTimeOfDay = taskEnd.TimeOfDay;
+			bool expandsForMultipleDays = taskStartTimeOfDay > taskEndTimeOfDay;
 
-			var effectiveStart = rangeStart < taskStart ? taskStart : rangeStart;
-			var effectiveEnd = GetEffectiveEnd(rangeEnd, taskEnd);
+			var actualStartDate = rangeStart < taskStart ? taskStart : rangeStart;
+			var actualEndDate = GetActualEnd(rangeEnd, taskEnd);
 
-			if (wrapsAround && effectiveEnd.Date == taskEnd.Date)
-				effectiveEnd = effectiveEnd.AddDays(1);
+			if (expandsForMultipleDays && actualEndDate.Date == taskEnd.Date)
+				actualEndDate = actualEndDate.AddDays(1);
 
-			if (effectiveStart >= effectiveEnd)
+			if (actualStartDate >= actualEndDate)
 				return results;
 
-			for (var day = effectiveStart.Date; day <= effectiveEnd.Date; day = day.AddDays(1))
+			for (var day = actualStartDate.Date; day <= actualEndDate.Date; day = day.AddDays(1))
 			{
-				if (!wrapsAround)
+				if (!expandsForMultipleDays)
 				{
-					GenerateDailyOccurrences(day + startTimeOfDay, day + endTimeOfDay, intervalMinutes, effectiveStart, effectiveEnd, results);
+					GenerateDailyOccurrences(day + taskStartTimeOfDay, day + taskEndTimeOfDay, intervalMinutes, actualStartDate, actualEndDate, results);
 				}
 				else
 				{
 					// Early morning segment (from 00:00 to taskEnd.TimeOfDay)
-					GenerateDailyOccurrences(day, day + endTimeOfDay, intervalMinutes, effectiveStart, effectiveEnd, results);
+					GenerateDailyOccurrences(day, day + taskEndTimeOfDay, intervalMinutes, actualStartDate, actualEndDate, results);
 					// Evening segment (from taskStart.TimeOfDay to next day's taskEnd)
-					GenerateDailyOccurrences(day + startTimeOfDay, day.AddDays(1) + endTimeOfDay, intervalMinutes, effectiveStart, effectiveEnd, results);
+					GenerateDailyOccurrences(day + taskStartTimeOfDay, day.AddDays(1) + taskEndTimeOfDay, intervalMinutes, actualStartDate, actualEndDate, results);
 				}
 			}
 
 			return results.Distinct().ToList();
 		}
 
-		private static DateTime GetEffectiveEnd(DateTime rangeEnd, DateTime taskEnd)
+		private static DateTime GetActualEnd(DateTime rangeEnd, DateTime taskEnd)
 		{
 			if (taskEnd.Date != DateTime.MinValue.Date && rangeEnd > taskEnd)
 				return taskEnd;
