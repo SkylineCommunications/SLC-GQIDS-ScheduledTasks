@@ -9,7 +9,7 @@
 		/// <summary>
 		/// Parses daily tasks based on repeat interval in minutes.
 		/// </summary>
-		/// <param name="repeatInterval">Number of times that task will be repeated daily.</param>
+		/// <param name="repeatInterval">Number of minutes in between occurences, 0 for once per day.</param>
 		/// <param name="rangeStart">Selected start time by user.</param>
 		/// <param name="rangeEnd">Selected end time by user.</param>
 		/// <param name="taskStart">Actual start time of task.</param>
