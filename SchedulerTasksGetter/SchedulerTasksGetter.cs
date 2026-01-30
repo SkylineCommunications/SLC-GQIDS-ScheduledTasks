@@ -56,6 +56,7 @@ namespace SchedulerTasksGetter
 				new GQIStringColumn("DataMiner"),
 				new GQIStringColumn("Interval"),
 				new GQIStringColumn("Last Result"),
+				new GQIBooleanColumn("Enabled"),
 			};
 			return columns.ToArray();
 		}
@@ -79,6 +80,7 @@ namespace SchedulerTasksGetter
 					new GQICell { Value = task.HandlingDMA.ToString() },
 					new GQICell { Value = IntervalBuilder.BuildIntervalString(task)},
 					new GQICell { Value = task.LastExecuteResult},
+					new GQICell { Value = task.Enabled },
 				};
 
 				rows.Add(new GQIRow(cells.ToArray()));
