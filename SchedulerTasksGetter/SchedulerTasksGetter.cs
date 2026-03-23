@@ -56,6 +56,7 @@ namespace SchedulerTasksGetter
 				new GQIStringColumn("DataMiner"),
 				new GQIStringColumn("Interval"),
 				new GQIStringColumn("Last Result"),
+				new GQIBooleanColumn("Enabled"),
 			};
 			return columns.ToArray();
 		}
@@ -79,6 +80,7 @@ namespace SchedulerTasksGetter
 					new GQICell { Value = task.HandlingDMA.ToString() },
 					new GQICell { Value = IntervalBuilder.BuildIntervalString(task)},
 					new GQICell { Value = task.LastExecuteResult},
+					new GQICell { Value = task.Enabled },
 				};
 
 				rows.Add(new GQIRow(cells.ToArray()));
@@ -87,38 +89,21 @@ namespace SchedulerTasksGetter
 			return rows;
 		}
 
-		private IEnumerable<SchedulerTask> GetTasks(Func<Skyline.DataMiner.Net.Messages.SchedulerTask, bool> selector)
+		private IEnumerable<SchedulerTask> GetTasks(Func<SchedulerTask, bool> selector)
 		{
-
 			var dmaId = GetDmaInfo();
-			var result = new List<Skyline.DataMiner.Net.Messages.SchedulerTask>();
-			GetInfoMessage getInfoMessage = new GetInfoMessage
+			var tasksList = dms.SendMessages(new GetInfoMessage{ Type = InfoType.SchedulerTasks }).OfType<GetSchedulerTasksResponseMessage>().FirstOrDefault();
+			if (tasksList?.Tasks == null)
+				yield break;
+
+			var additionalSchedulerInfo = (GetSchedulerInfoResponseMessage)dms.SendMessage(new GetSchedulerInfoMessage(13, dmaId));
+			var detailsAboutAllScheduledTasks = additionalSchedulerInfo.psaRet.Psa.Where(t => t.Sa.Count() > 3).GroupBy(t => t.Sa[0]).ToDictionary(g => g.Key, g => g.First().Sa[2]);
+
+			foreach (var schedulerTask in tasksList.Tasks.OfType<SchedulerTask>().Where(selector))
 			{
-				Type = InfoType.SchedulerTasks,
-			};
-
-			var schedulerTasks = dms.SendMessages(getInfoMessage).OfType<GetSchedulerTasksResponseMessage>();
-			var tasksList = schedulerTasks.FirstOrDefault();
-			GetSchedulerInfoMessage getSchedulerInfoMessage = new GetSchedulerInfoMessage(13, dmaId);
-			var additionalSchedulerInfo = (GetSchedulerInfoResponseMessage)dms.SendMessage(getSchedulerInfoMessage);
-
-			if (tasksList?.Tasks != null)
-			{
-				for (int i = 0; i < tasksList.Tasks.Count; i++)
-				{
-					var task = tasksList.Tasks[i];
-					if (task is Skyline.DataMiner.Net.Messages.SchedulerTask scheduleTask && selector(scheduleTask))
-					{
-
-						scheduleTask.LastExecuteResult = additionalSchedulerInfo.psaRet.Psa[i].Sa[2];
-						result.Add(scheduleTask);
-
-					}
-				}
+				schedulerTask.LastExecuteResult = detailsAboutAllScheduledTasks.TryGetValue(schedulerTask.TaskName, out var result) ? result : "N/A";
+				yield return schedulerTask;
 			}
-
-			return result;
-
 		}
 
 		private int GetDmaInfo()
@@ -131,6 +116,5 @@ namespace SchedulerTasksGetter
 			var info = (GetDataMinerInfoResponseMessage)dms.SendMessage(getInfoMessage);
 			return info.ID;
 		}
-
 	}
 }
