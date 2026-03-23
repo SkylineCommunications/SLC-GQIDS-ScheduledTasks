@@ -25,6 +25,11 @@
 
 			var taskStartTimeOfDay = taskStart.TimeOfDay;
 			var taskEndTimeOfDay = taskEnd.TimeOfDay;
+			if (taskEndTimeOfDay == new TimeSpan(0))
+			{
+				taskEndTimeOfDay = new TimeSpan(23,59,59);
+			}
+
 			bool expandsForMultipleDays = taskStartTimeOfDay > taskEndTimeOfDay;
 
 			var actualStartDate = rangeStart < taskStart ? taskStart : rangeStart;
